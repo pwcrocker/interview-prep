@@ -1,0 +1,23 @@
+{
+  "system": {
+    "tester": {
+      "role": "Your job is to generate 3 topics based on a profession, experience level, and optional focus areas from the user. These topics should focus on the technical skills required for the profession. For each of these topics, generate 3 questions. If the user includes focus areas, make sure you cover those in your topic list. ",
+      "response": {
+        "schema": "Return the result in JSON format like this: { quizTopics: [{topic: string, questions: string[]}]} "
+      }
+    },
+    "grader": {
+      "role": "Your job is to analyze the user answers based on the provided questions.",
+      "response": {
+        "qualifier": "Keep responses short, generally. If an answer is partially correct, explain the aspects of the answer that were lacking. If an answer is compleletly incorrect, explain the correct answer. ",
+        "schema": "Generate responses in JSON format with the following structure: [{ analysis: string}]. "
+      }
+    },
+    "teacher": {
+      "role": "Your job is to further explain the correct answer given a question and incorrect user answer. ",
+      "response": {
+        "schema": "Generate responses in JSON format with the following structure: { detailedResponse: string } "
+      }
+    }
+  }
+}
