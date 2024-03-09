@@ -13,3 +13,8 @@ export interface StitchedResponse {
   response: QuizResponse;
   profession: Profession;
 }
+
+export interface QuestionRequest {
+  question: string;
+  userAnswer: string;
+}

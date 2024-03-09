@@ -1,9 +1,9 @@
 'use client';
 
 import { useContext } from 'react';
+import { Button, Center } from '@mantine/core';
 import { Welcome } from '../components/Welcome/Welcome';
 import { ColorSchemeToggle } from '../components/ColorSchemeToggle/ColorSchemeToggle';
-import StepForm from '@/components/StepForm/StepForm';
 import { QuizContext } from '@/store/QuizContextProvider';
 import Quiz from '@/components/Quiz/Quiz';
 
@@ -17,7 +17,18 @@ export default function HomePage() {
         <>
           <Welcome />
           <ColorSchemeToggle />
-          <StepForm />
+          <Center mih="10rem" mt="5rem">
+            <Button
+              component="a"
+              href="/onboarding"
+              variant="outline"
+              color="lime"
+              size="md"
+              radius="xl"
+            >
+              Get Started
+            </Button>
+          </Center>
         </>
       )}
     </>

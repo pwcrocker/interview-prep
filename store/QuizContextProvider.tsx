@@ -2,12 +2,13 @@
 
 import { createContext, useReducer } from 'react';
 import quizReducer from '@/reducers/quizReducer';
-import { Quiz } from '@/types/quiz';
+import { QuestionAnalysis, Quiz } from '@/types/quiz';
 import { StitchedResponse } from '@/types/response';
 
 export enum QuizActionType {
   MAKE_QUIZ = 'make-quiz',
   ANSWER_QUESTION = 'answer-question',
+  ADD_ANALYSIS = 'add-analysis',
 }
 
 export type QuizAction =
@@ -18,6 +19,10 @@ export type QuizAction =
   | {
       type: QuizActionType.ANSWER_QUESTION;
       payload: { questionIdx: number; userAnswer: string };
+    }
+  | {
+      type: QuizActionType.ADD_ANALYSIS;
+      payload: { question: string; questionAnalysis: QuestionAnalysis };
     };
 
 interface QuizContextType {

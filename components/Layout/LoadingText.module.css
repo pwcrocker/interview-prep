@@ -1,0 +1,16 @@
+.loading-text {
+  color: #fff;
+  animation: glow 2.5s infinite;
+}
+
+@keyframes glow {
+  0% {
+    color: inherit;
+  }
+  50% {
+    color: #a95c0a; /* Intermediate color */
+  }
+  100% {
+    color: inherit; /* Return to initial color */
+  }
+}

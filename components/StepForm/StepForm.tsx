@@ -2,30 +2,21 @@
 
 /* eslint-disable no-console */
 
-import { useContext, useState } from 'react';
-import {
-  Stepper,
-  Button,
-  Group,
-  TextInput,
-  Text,
-  Select,
-  Code,
-  TagsInput,
-  LoadingOverlay,
-} from '@mantine/core';
+import { useContext, useEffect, useState } from 'react';
+import { Stepper, Button, Group, TextInput, Text, Select, TagsInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
+import { useRouter } from 'next/navigation';
 import styles from './StepForm.module.css';
-import { buildQuiz } from '@/lib/prompt';
+import { fetchQuizResponse } from '@/lib/prompt';
 import { EXPERIENCE } from '@/types/experience';
 import { Profession } from '@/types/profession';
 import { QuizActionType, QuizContext } from '@/store/QuizContextProvider';
+import LoadingText from '../Layout/LoadingText';
 
 export default function StepForm() {
   const [active, setActive] = useState(0);
-  const [isBuildingQuiz, setIsBuildingQuiz] = useState(false);
-  // const [response, setResponse] = useState<QuizResponse | null>(null);
   const { quiz, dispatch } = useContext(QuizContext);
+  const router = useRouter();
 
   const form = useForm({
     initialValues: {
@@ -44,6 +35,12 @@ export default function StepForm() {
     },
   });
 
+  useEffect(() => {
+    if (quiz.questions?.length > 0) {
+      router.push('/prep');
+    }
+  }, [quiz]);
+
   const nextStep = () =>
     setActive((current) => {
       if (form.validate().hasErrors) {
@@ -54,9 +51,7 @@ export default function StepForm() {
 
   const sendPrompt = async () => {
     nextStep();
-    setIsBuildingQuiz(true);
-    const res = await buildQuiz(form.values as Profession);
-    setIsBuildingQuiz(false);
+    const res = await fetchQuizResponse(form.values as Profession);
     // setResponse(res);
     dispatch({
       type: QuizActionType.MAKE_QUIZ,
@@ -65,21 +60,16 @@ export default function StepForm() {
         profession: { job: form.values.job, experience: form.values.experience },
       },
     });
+
     console.log(`Response: ${res}`);
   };
 
   const prevStep = () => {
-    // setResponse(null);
     setActive((current) => (current > 0 ? current - 1 : current));
   };
 
   return (
     <div className={styles.container}>
-      <LoadingOverlay
-        visible={isBuildingQuiz}
-        zIndex={1000}
-        overlayProps={{ radius: 'sm', blur: 2 }}
-      />
       <Stepper active={active}>
         <Stepper.Step label="Job Overview" description="What are you applying for?">
           <TextInput
@@ -115,18 +105,7 @@ export default function StepForm() {
           )}
         </Stepper.Step>
         <Stepper.Completed>
-          {quiz.questions?.length && (
-            <>
-              {/* <Text>
-                Question count:{' '}
-                {response.quizTopics.reduce(
-                  (accumulator, curTopic) => accumulator + curTopic.questions.length,
-                  0
-                )}
-              </Text> */}
-              <Code block>{JSON.stringify(quiz, null, 2)}</Code>
-            </>
-          )}
+          <LoadingText label="Creating quiz..." />
         </Stepper.Completed>
       </Stepper>
 

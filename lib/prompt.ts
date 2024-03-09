@@ -6,9 +6,10 @@ import OpenAI from 'openai';
 import promptConfig from '@/config/promptConfig.json';
 import { Profession } from '@/types/profession';
 import { Nullable } from '@/types/nullability';
-import { QuizResponse } from '@/types/response';
+import { QuestionRequest, QuizResponse } from '@/types/response';
+import { QuestionAnalysis } from '@/types/quiz';
 
-const { tester } = promptConfig.system;
+const { tester, grader } = promptConfig.system;
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -18,7 +19,7 @@ function getTesterSystemPrompt() {
   return tester.role + tester.response.schema;
 }
 
-export async function buildQuiz(profession: Profession) {
+export async function fetchQuizResponse(profession: Profession) {
   // TODO gonna try this with focusAreas provided regardless
   const userPrompt = JSON.stringify(profession);
   let responseContent: Nullable<string>;
@@ -47,34 +48,40 @@ export async function buildQuiz(profession: Profession) {
   return JSON.parse(responseContent) as QuizResponse;
 }
 
-// function getAnswerAnalystSystemPrompt() {
-//   // const prompt =
-//   //   'Only respond to user prompts and keep responses short unless asked for explanation. Your job is to ask 3 questions per request that cover interview material for a given profession ' +
-//   //   'based on question difficulty, topic, and potential focus areas. You will also generate a summary label that covers the subject matter of the questions being asked, which will be used prevent repeated questions going forward.' +
-//   //   'Your JSON response should resemble this structure: { questions: string[], summaryLabel: string, difficulty: string, profession: string }';
+function getGraderSystemPrompt() {
+  const prompt = grader.role + grader.response.qualifier + grader.response.schema;
 
-//   const interactionPrompt = grader.role + grader.response.qualifier;
-//   const overallPrompt = interactionPrompt + grader.response.schema;
+  console.log(`Grader prompt: ${prompt}`);
 
-//   console.log(`Grader prompt: ${overallPrompt}`);
+  return prompt;
+}
 
-//   return overallPrompt;
-// }
+export async function checkAnswer(quesReq: QuestionRequest) {
+  let responseContent: Nullable<string>;
+  try {
+    const response = await openai.chat.completions.create({
+      messages: [
+        { role: 'system', content: getGraderSystemPrompt() },
+        {
+          role: 'user',
+          content: JSON.stringify(quesReq),
+        },
+      ],
+      model: 'gpt-3.5-turbo',
+    });
 
-// export async function checkAnswers(answers: AnswerContext[]) {
-//   const response = await openai.chat.completions.create({
-//     messages: [
-//       { role: 'system', content: getAnswerAnalystSystemPrompt() },
-//       {
-//         role: 'user',
-//         content: `Evaluate the following user answers to their respective questions: ${JSON.stringify(answers)}`,
-//       },
-//     ],
-//     model: 'gpt-3.5-turbo',
-//   });
+    responseContent = response.choices[0].message.content;
 
-//   return response.choices[0].message.content;
-// }
+    if (!responseContent) {
+      throw Error('Response content was null');
+    }
+  } catch (e) {
+    console.log('Failed to fetch questions: ', e);
+    throw e;
+  }
+  // TODO need schema validation ??
+  return JSON.parse(responseContent) as QuestionAnalysis;
+}
 
 // function getTeacherSystemPrompt() {
 //   // const prompt =

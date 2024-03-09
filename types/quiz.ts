@@ -1,6 +1,6 @@
 import { Profession } from './profession';
 
-interface QuestionAnalysis {
+export interface QuestionAnalysis {
   summary: string;
   detailed: string;
 }
