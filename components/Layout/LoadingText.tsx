@@ -1,12 +1,14 @@
-import { Center, Text } from '@mantine/core';
-import styles from './LoadingText.module.css';
+import { Box, Flex, Progress, Text } from '@mantine/core';
 
 export default function LoadingText({ label, ...props }: { label: string; [key: string]: any }) {
   return (
-    <Center mih="10rem" bg="rgba(0, 0, 0, .3)" {...props}>
-      <Text className={styles['loading-text']} fw={700} size="xl">
+    <Flex direction="column" align="center" gap="2rem" {...props}>
+      <Text ta="center" fw={700} size="xl">
         {label}
       </Text>
-    </Center>
+      <Box w="80%">
+        <Progress value={100} animated />
+      </Box>
+    </Flex>
   );
 }

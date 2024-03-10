@@ -3,9 +3,9 @@
 import Link from 'next/link';
 import { AppShell, Burger, Group, UnstyledButton } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import classes from './Navbar.module.css';
+import classes from './AppWrapper.module.css';
 
-export default function Navbar({ children }: { children: React.ReactNode }) {
+export default function AppWrapper({ children }: { children: React.ReactNode }) {
   const [opened, { toggle }] = useDisclosure();
 
   return (

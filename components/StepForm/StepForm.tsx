@@ -105,7 +105,7 @@ export default function StepForm() {
           )}
         </Stepper.Step>
         <Stepper.Completed>
-          <LoadingText label="Creating quiz..." />
+          <LoadingText label="Creating quiz..." mt="2rem" />
         </Stepper.Completed>
       </Stepper>
 

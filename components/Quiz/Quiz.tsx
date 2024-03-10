@@ -3,7 +3,7 @@
 /* eslint-disable no-console */
 
 import { useCallback, useContext, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Button, Container, Flex, Text, Textarea } from '@mantine/core';
 import { QuizActionType, QuizContext } from '@/store/QuizContextProvider';
 import { Question } from '@/types/quiz';
@@ -46,18 +46,23 @@ export default function Quiz() {
   const [questionIdx, setQuestionIdx] = useState(0);
   const [isFetching, setIsFetching] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
 
   const isDone = useCallback(() => {
     console.log(`index: ${questionIdx}`);
     console.log(`questions: ${JSON.stringify(quiz.questions, null, 2)}`);
     return questionIdx >= quiz.questions.length;
-  }, [questionIdx, quiz]);
+  }, [questionIdx]);
 
   useEffect(() => {
     if (isDone() && !isFetching) {
-      router.push('/results');
+      router.push(`${pathname}/results`);
     }
   }, [isDone, isFetching]);
+
+  useEffect(() => {
+    console.log(`pathname ${pathname}`);
+  }, [pathname]);
 
   function handleNext(userAnswer: string) {
     setIsFetching(true);
@@ -78,7 +83,7 @@ export default function Quiz() {
   return (
     <>
       {!isDone() && <Question question={quiz.questions[questionIdx]} handleNext={handleNext} />}
-      {isDone() && isFetching && <LoadingText label="Loading results..." mt="3rem" />}
+      {isDone() && <LoadingText label="Loading results..." mt="3rem" />}
     </>
   );
 }

@@ -3,7 +3,7 @@ import React from 'react';
 import { MantineProvider, ColorSchemeScript } from '@mantine/core';
 import { theme } from '../theme';
 import QuizContextProvider from '@/store/QuizContextProvider';
-import Navbar from '@/components/Layout/Navbar';
+import AppWrapper from '@/components/Layout/AppWrapper';
 
 export const metadata = {
   title: 'Mantine Next.js template',
@@ -23,9 +23,9 @@ export default function RootLayout({ children }: { children: any }) {
       </head>
       <body>
         <MantineProvider theme={theme}>
-          <Navbar>
+          <AppWrapper>
             <QuizContextProvider>{children}</QuizContextProvider>
-          </Navbar>
+          </AppWrapper>
         </MantineProvider>
       </body>
     </html>

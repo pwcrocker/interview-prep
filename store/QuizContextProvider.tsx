@@ -9,6 +9,7 @@ export enum QuizActionType {
   MAKE_QUIZ = 'make-quiz',
   ANSWER_QUESTION = 'answer-question',
   ADD_ANALYSIS = 'add-analysis',
+  RESET_QUIZ = 'reset-quiz',
 }
 
 export type QuizAction =
@@ -23,6 +24,9 @@ export type QuizAction =
   | {
       type: QuizActionType.ADD_ANALYSIS;
       payload: { question: string; questionAnalysis: QuestionAnalysis };
+    }
+  | {
+      type: QuizActionType.RESET_QUIZ;
     };
 
 interface QuizContextType {
@@ -30,7 +34,7 @@ interface QuizContextType {
   dispatch: React.Dispatch<QuizAction>;
 }
 
-const initialReducerState: Quiz = {
+export const initialReducerState: Quiz = {
   questions: [],
   attributes: {
     profession: {

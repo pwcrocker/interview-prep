@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { QuizAction, QuizActionType } from '@/store/QuizContextProvider';
+import { QuizAction, QuizActionType, initialReducerState } from '@/store/QuizContextProvider';
 import { Question, QuestionAnalysis, Quiz } from '@/types/quiz';
 import { StitchedResponse } from '@/types/response';
 
@@ -62,6 +62,8 @@ export default function quizReducer(quiz: Quiz, action: QuizAction) {
         ...quiz,
         ...addAnalysis(quiz, action.payload.question, action.payload.questionAnalysis),
       };
+    case QuizActionType.RESET_QUIZ:
+      return initialReducerState;
     default:
       return quiz;
   }
