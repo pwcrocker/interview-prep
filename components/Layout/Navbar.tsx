@@ -4,61 +4,68 @@ import Link from 'next/link';
 import { AppShell, Burger, Group, UnstyledButton } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import classes from './Navbar.module.css';
+import { useUser } from '@auth0/nextjs-auth0/client';
 
 export default function Navbar({ children }: { children: React.ReactNode }) {
-  const [opened, { toggle }] = useDisclosure();
+    const [opened, { toggle }] = useDisclosure();
+    const { user } = useUser();
 
-  return (
-    <AppShell
-      header={{ height: 60 }}
-      navbar={{ width: 300, breakpoint: 'sm', collapsed: { desktop: true, mobile: !opened } }}
-      padding="md"
-    >
-      <AppShell.Header>
-        <Group h="100%" px="md">
-          <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-          <Group justify="space-between" style={{ flex: 1 }}>
-            <Link href="/">
-              {' '}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="icon icon-tabler icon-tabler-tie"
-                width="30"
-                height="30"
-                viewBox="0 0 24 24"
-                strokeWidth="1.5"
-                stroke="currentColor"
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                <path d="M12 22l4 -4l-2.5 -11l.993 -2.649a1 1 0 0 0 -.936 -1.351h-3.114a1 1 0 0 0 -.936 1.351l.993 2.649l-2.5 11l4 4z" />
-                <path d="M10.5 7h3l5 5.5" />
-              </svg>
-            </Link>
-            <Group ml="xl" gap="1rem" visibleFrom="sm">
-              <UnstyledButton className={classes.control} component="a" href="/">
-                Home
-              </UnstyledButton>
-              <UnstyledButton className={classes.control} component="a" href="/onboarding">
-                Prep
-              </UnstyledButton>
-            </Group>
-          </Group>
-        </Group>
-      </AppShell.Header>
+    return (
+        <AppShell
+            header={{ height: 60 }}
+            navbar={{ width: 300, breakpoint: 'sm', collapsed: { desktop: true, mobile: !opened } }}
+            padding="md"
+        >
+            <AppShell.Header>
+                <Group h="100%" px="md">
+                    <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
+                    <Group justify="space-between" style={{ flex: 1 }}>
+                        <Link href="/">
+                            {' '}
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="icon icon-tabler icon-tabler-tie"
+                                width="30"
+                                height="30"
+                                viewBox="0 0 24 24"
+                                strokeWidth="1.5"
+                                stroke="currentColor"
+                                fill="none"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            >
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M12 22l4 -4l-2.5 -11l.993 -2.649a1 1 0 0 0 -.936 -1.351h-3.114a1 1 0 0 0 -.936 1.351l.993 2.649l-2.5 11l4 4z" />
+                                <path d="M10.5 7h3l5 5.5" />
+                            </svg>
+                        </Link>
+                        <Group ml="xl" gap="1rem" visibleFrom="sm">
+                            <UnstyledButton className={classes.control} component="a" href="/">
+                                Home
+                            </UnstyledButton>
+                            <UnstyledButton className={classes.control} component="a" href="/onboarding">
+                                Prep
+                            </UnstyledButton>
+                            {
+                                user && <UnstyledButton className={classes.control} component="a" href="/api/auth/logout">
+                                    Logout ({user.name})
+                                </UnstyledButton>
+                            }
+                        </Group>
+                    </Group>
+                </Group>
+            </AppShell.Header>
 
-      <AppShell.Navbar py="md" px={4}>
-        <UnstyledButton className={classes.control} component="a" href="/">
-          Home
-        </UnstyledButton>
-        <UnstyledButton className={classes.control} component="a" href="/onboarding">
-          Prep
-        </UnstyledButton>
-      </AppShell.Navbar>
+            <AppShell.Navbar py="md" px={4}>
+                <UnstyledButton className={classes.control} component="a" href="/">
+                    Home
+                </UnstyledButton>
+                <UnstyledButton className={classes.control} component="a" href="/onboarding">
+                    Prep
+                </UnstyledButton>
+            </AppShell.Navbar>
 
-      <AppShell.Main>{children}</AppShell.Main>
-    </AppShell>
-  );
+            <AppShell.Main>{children}</AppShell.Main>
+        </AppShell>
+    );
 }
