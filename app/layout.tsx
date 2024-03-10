@@ -1,5 +1,6 @@
 import '@mantine/core/styles.css';
 import React from 'react';
+import { UserProvider } from '@auth0/nextjs-auth0/client';
 import { MantineProvider, ColorSchemeScript } from '@mantine/core';
 import { theme } from '../theme';
 import QuizContextProvider from '@/store/QuizContextProvider';
@@ -21,13 +22,15 @@ export default function RootLayout({ children }: { children: any }) {
           content="minimum-scale=1, initial-scale=1, width=device-width, user-scalable=no"
         />
       </head>
-      <body>
-        <MantineProvider theme={theme}>
-          <AppWrapper>
-            <QuizContextProvider>{children}</QuizContextProvider>
-          </AppWrapper>
-        </MantineProvider>
-      </body>
+      <UserProvider>
+        <body>
+          <MantineProvider theme={theme}>
+            <AppWrapper>
+              <QuizContextProvider>{children}</QuizContextProvider>
+            </AppWrapper>
+          </MantineProvider>
+        </body>
+      </UserProvider>
     </html>
   );
 }
