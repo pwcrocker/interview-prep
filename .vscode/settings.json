@@ -1,0 +1,17 @@
+{
+  "editor.tabSize": 2,
+  "workbench.colorTheme": "Default Dark Modern",
+  "window.zoomLevel": 3,
+  "git.openRepositoryInParentFolders": "never",
+  "editor.formatOnSave": true,
+  "editor.fontLigatures": false,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.fontWeight": "normal",
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "explorer.confirmDragAndDrop": false,
+  "emmet.includeLanguages": {
+    "javascript": "html",
+    "postcss": "css"
+  },
+  "workbench.iconTheme": "material-icon-theme"
+}
