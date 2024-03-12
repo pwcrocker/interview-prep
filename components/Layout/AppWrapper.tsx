@@ -1,12 +1,18 @@
 'use client';
 
 import Link from 'next/link';
-import { AppShell, Burger, Group, UnstyledButton } from '@mantine/core';
+import { AppShell, Burger, Center, Flex, Group, UnstyledButton } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
+import { useUser } from '@auth0/nextjs-auth0/client';
 import classes from './AppWrapper.module.css';
+import ReportSkeleton from '../Report/ReportSkeleton';
+import LoginButtonSkeleton from '../Skeletons/LoginButtonSkeleton';
+import { ColorSchemeToggle } from '../ColorSchemeToggle/ColorSchemeToggle';
+import UserDrawer from './UserDrawer';
 
 export default function AppWrapper({ children }: { children: React.ReactNode }) {
   const [opened, { toggle }] = useDisclosure();
+  const { user, isLoading } = useUser();
 
   return (
     <AppShell
@@ -19,34 +25,44 @@ export default function AppWrapper({ children }: { children: React.ReactNode }) 
           <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
           <Group justify="space-between" style={{ flex: 1 }}>
             <Link href="/">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="icon icon-tabler icon-tabler-tie"
-                width="30"
-                height="30"
-                viewBox="0 0 24 24"
-                strokeWidth="0.5"
-                stroke="black"
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <circle cx="12" cy="12" r="10" fill="#ff6600" />
-                <path
-                  d="M12 22l4 -4l-2.5 -11l.993 -2.649a1 1 0 0 0 -.936 -1.351h-3.114a1 1 0 0 0 -.936 1.351l.993 2.649l-2.5 11l4 4z"
-                  fill="white"
-                />
-                <path d="M10.5 7h3l5 5.5" />
-              </svg>
+              <Center>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="icon icon-tabler icon-tabler-tie"
+                  width="30"
+                  height="30"
+                  viewBox="0 0 24 24"
+                  strokeWidth="0.5"
+                  stroke="black"
+                  fill="none"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="12" cy="12" r="10" fill="#ff6600" />
+                  <path
+                    d="M12 22l4 -4l-2.5 -11l.993 -2.649a1 1 0 0 0 -.936 -1.351h-3.114a1 1 0 0 0 -.936 1.351l.993 2.649l-2.5 11l4 4z"
+                    fill="white"
+                  />
+                  <path d="M10.5 7h3l5 5.5" />
+                </svg>
+              </Center>
             </Link>
-            <Group ml="xl" gap="1rem" visibleFrom="sm">
-              <UnstyledButton className={classes.control} component="a" href="/">
-                Home
-              </UnstyledButton>
-              <UnstyledButton className={classes.control} component="a" href="/onboarding">
-                Prep
-              </UnstyledButton>
-            </Group>
+            <Flex ml="xl" gap="1rem" visibleFrom="sm">
+              <ColorSchemeToggle isLoading={isLoading} />
+              <LoginButtonSkeleton isVisible={isLoading}>
+                {user ? (
+                  <UserDrawer />
+                ) : (
+                  <UnstyledButton className={classes.control} component="a" href="/api/auth/login">
+                    Log In
+                  </UnstyledButton>
+                )}
+              </LoginButtonSkeleton>
+            </Flex>
+            <Flex gap="1rem" ml="xl" hiddenFrom="sm">
+              <ColorSchemeToggle isLoading={isLoading} />
+              <UserDrawer />
+            </Flex>
           </Group>
         </Group>
       </AppShell.Header>
@@ -55,12 +71,8 @@ export default function AppWrapper({ children }: { children: React.ReactNode }) 
         <UnstyledButton className={classes.control} component="a" href="/">
           Home
         </UnstyledButton>
-        <UnstyledButton className={classes.control} component="a" href="/onboarding">
-          Prep
-        </UnstyledButton>
       </AppShell.Navbar>
-
-      <AppShell.Main>{children}</AppShell.Main>
+      <AppShell.Main>{isLoading ? <ReportSkeleton /> : children}</AppShell.Main>
     </AppShell>
   );
 }

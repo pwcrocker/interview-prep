@@ -1,19 +1,17 @@
 import { Button, Center } from '@mantine/core';
 import { Welcome } from '../components/Welcome/Welcome';
-import { ColorSchemeToggle } from '../components/ColorSchemeToggle/ColorSchemeToggle';
 
 export default function HomePage() {
   return (
     <>
       <Welcome />
-      <ColorSchemeToggle />
-      <Center mih="10rem" mt="5rem">
+      <Center mih="10rem">
         <Button
           component="a"
           href="/onboarding"
-          variant="outline"
-          color="lime"
-          size="md"
+          variant="gradient"
+          gradient={{ from: 'orange', to: 'pink', deg: 236 }}
+          size="lg"
           radius="xl"
         >
           Get Started
