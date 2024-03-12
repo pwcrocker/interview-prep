@@ -1,30 +1,36 @@
 todo
 
-fundametal
+**fundamental**
 
-questions
+- questions
 
-- max quiz length
-- storing quiz state in db
+  - max quiz length
+  - storing quiz state in db
 
 - tech debt
-  - db
-  - error state handling
-  - handle loading state through isLoading + skeletons or maybe suspense
-  - maybe use a timeout for waiting on async fetches at end of quiz
-  - unit testing w jest
-  - storybook
+
+  - general
+    - db
+    - error state handling
+    - unit testing
+    - maybe storybook
+  - ui
+    - scalable quiz progress
+    - handle loading state through isLoading + skeletons or maybe suspense
+    - maybe use a timeout for waiting on async fetches at end of quiz
+
 - ai
+
   - deterministic values for summary from ai (i.e. correct, partially correct, incorrect)
   - sometimes questions don't fully explain correct answer in detailed section
   - maybe too much repeating of user answer
 
-free
+**free tier**
 
 - rate questions
 - dispute AI answer
 
-paid
+**paid**
 
 - save questions/quizzes to bank
 - potentially generate quiz from bank of saved
