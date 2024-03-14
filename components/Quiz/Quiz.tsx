@@ -4,12 +4,12 @@
 
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { Button, Container, Flex, LoadingOverlay, Stack, Text, Textarea } from '@mantine/core';
+import { Button, Container, Flex, LoadingOverlay, Text, Textarea } from '@mantine/core';
 import { QuizActionType, QuizContext } from '@/store/QuizContextProvider';
 import { Question } from '@/types/quiz';
 import { checkAnswer } from '@/lib/prompt';
 import LoadingText from '../Layout/LoadingText';
-import QuizProgress from './QuizProgress';
+import QuizHeader from './QuizHeader';
 
 function QuizQuestion({
   question,
@@ -21,20 +21,6 @@ function QuizQuestion({
   isSubmittable: boolean;
 }) {
   const [curAnswer, setCurAnswer] = useState('');
-
-  // useEffect(() => {
-  //   console.log('timeout');
-  //   setIsClickable(false);
-
-  //   const timeout = setTimeout(() => {
-  //     console.log('set clickable');
-  //     setIsClickable(true);
-  //   }, 4000);
-
-  //   return () => {
-  //     clearTimeout(timeout);
-  //   };
-  // }, []);
 
   function processSubmit() {
     handleNext(curAnswer);
@@ -113,11 +99,12 @@ export default function Quiz() {
 
   return (
     <>
-      <Stack align="center" mt="xl">
-        <Text fs="italic">{quiz.attributes.profession.job}</Text>
-        <Text fs="italic">{quiz.attributes.profession.experience}</Text>
-        <QuizProgress totalQuesNum={quiz.questions?.length} curQuesNum={questionIdx} />
-      </Stack>
+      <QuizHeader
+        job={quiz.attributes.profession.job}
+        experience={quiz.attributes.profession.experience!.toString()}
+        totalQuestions={quiz.questions.length}
+        curQuesIdx={questionIdx}
+      />
       {!isDone() && (
         <QuizQuestion
           question={quiz.questions[questionIdx]}

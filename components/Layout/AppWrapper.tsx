@@ -5,7 +5,6 @@ import { AppShell, Burger, Center, Flex, Group, UnstyledButton } from '@mantine/
 import { useDisclosure } from '@mantine/hooks';
 import { useUser } from '@auth0/nextjs-auth0/client';
 import classes from './AppWrapper.module.css';
-import LoginButtonSkeleton from '../Skeletons/LoginButtonSkeleton';
 import { ColorSchemeToggle } from '../ColorSchemeToggle/ColorSchemeToggle';
 import UserDrawer from './UserDrawer';
 import DefaultSkeleton from '../Skeletons/DefaultSkeleton';
@@ -49,7 +48,7 @@ export default function AppWrapper({ children }: { children: React.ReactNode }) 
             </Link>
             <Flex ml="xl" gap="1rem" visibleFrom="sm">
               <ColorSchemeToggle isLoading={isLoading} />
-              <LoginButtonSkeleton isVisible={isLoading}>
+              <DefaultSkeleton isVisible={isLoading}>
                 {user ? (
                   <UserDrawer />
                 ) : (
@@ -57,7 +56,7 @@ export default function AppWrapper({ children }: { children: React.ReactNode }) 
                     Log In
                   </UnstyledButton>
                 )}
-              </LoginButtonSkeleton>
+              </DefaultSkeleton>
             </Flex>
             <Flex gap="1rem" ml="xl" hiddenFrom="sm">
               <ColorSchemeToggle isLoading={isLoading} />

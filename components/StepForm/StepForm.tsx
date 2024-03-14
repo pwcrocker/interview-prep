@@ -102,7 +102,6 @@ export default function StepForm() {
             {...form.getInputProps('experience')}
           />
         </Stepper.Step>
-
         <Stepper.Step label="Areas of focus" description="Any focus areas?">
           <TagsInput
             label="OPTIONAL: requests specific topics to be included"
@@ -117,16 +116,15 @@ export default function StepForm() {
             Everything appear correct?
           </Text>
           <Text>{`Profession: ${form.values.job}`}</Text>
-          <Text> {`Experience: ${form.values.experience}`}</Text>
+          <Text>{`Experience: ${form.values.experience}`}</Text>
           {form.values.focusAreas?.length > 0 && (
-            <Text> {`Focus Areas: ${form.values.focusAreas}`}</Text>
+            <Text>{`Focus Areas: ${form.values.focusAreas}`}</Text>
           )}
         </Stepper.Step>
         <Stepper.Completed>
           <LoadingText label="Creating quiz..." mt="2rem" />
         </Stepper.Completed>
       </StyledStepper>
-
       {!isBuilding && (
         <Group justify="flex-end" mt="xl">
           {active !== 0 && (

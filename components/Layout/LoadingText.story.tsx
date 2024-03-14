@@ -9,7 +9,7 @@ const meta: Meta<typeof LoadingText> = {
 export default meta;
 type Story = StoryObj<typeof LoadingText>;
 
-export const FirstStory: Story = {
+export const Simple: Story = {
   args: {
     label: 'Test',
   },

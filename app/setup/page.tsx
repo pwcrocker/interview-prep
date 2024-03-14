@@ -5,7 +5,7 @@ export default function PrepSetupPage() {
   return (
     <>
       <Title ta="center">Setup</Title>
-      <StepForm />;
+      <StepForm />
     </>
   );
 }
