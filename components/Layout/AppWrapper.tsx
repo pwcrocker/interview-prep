@@ -5,10 +5,10 @@ import { AppShell, Burger, Center, Flex, Group, UnstyledButton } from '@mantine/
 import { useDisclosure } from '@mantine/hooks';
 import { useUser } from '@auth0/nextjs-auth0/client';
 import classes from './AppWrapper.module.css';
-import ReportSkeleton from '../Report/ReportSkeleton';
 import LoginButtonSkeleton from '../Skeletons/LoginButtonSkeleton';
 import { ColorSchemeToggle } from '../ColorSchemeToggle/ColorSchemeToggle';
 import UserDrawer from './UserDrawer';
+import MySkeleton from '../Skeletons/MySkeleton';
 
 export default function AppWrapper({ children }: { children: React.ReactNode }) {
   const [opened, { toggle }] = useDisclosure();
@@ -72,7 +72,9 @@ export default function AppWrapper({ children }: { children: React.ReactNode }) 
           Home
         </UnstyledButton>
       </AppShell.Navbar>
-      <AppShell.Main>{isLoading ? <ReportSkeleton /> : children}</AppShell.Main>
+      <AppShell.Main>
+        <MySkeleton isVisible={isLoading}>{children}</MySkeleton>
+      </AppShell.Main>
     </AppShell>
   );
 }

@@ -3,8 +3,18 @@
 /* eslint-disable no-console */
 
 import { useContext, useEffect, useState } from 'react';
-import { Stepper, Button, Group, TextInput, Text, Select, TagsInput } from '@mantine/core';
+import {
+  Stepper,
+  Button,
+  Group,
+  TextInput,
+  Text,
+  Select,
+  TagsInput,
+  StepperProps,
+} from '@mantine/core';
 import { useForm } from '@mantine/form';
+import { useMediaQuery } from '@mantine/hooks';
 import { useRouter } from 'next/navigation';
 import styles from './StepForm.module.css';
 import { fetchQuizResponse } from '@/lib/prompt';
@@ -13,8 +23,18 @@ import { Profession } from '@/types/profession';
 import { QuizActionType, QuizContext } from '@/store/QuizContextProvider';
 import LoadingText from '../Layout/LoadingText';
 
+function StyledStepper(props: StepperProps) {
+  const atLeastWidth = useMediaQuery('(min-width: 48em)');
+  return atLeastWidth ? (
+    <Stepper {...props} />
+  ) : (
+    <Stepper {...props} size="sm" orientation="vertical" />
+  );
+}
+
 export default function StepForm() {
   const [active, setActive] = useState(0);
+  const [isBuilding, setIsBuilding] = useState(false);
   const { quiz, dispatch } = useContext(QuizContext);
   const router = useRouter();
 
@@ -51,8 +71,8 @@ export default function StepForm() {
 
   const sendPrompt = async () => {
     nextStep();
+    setIsBuilding(true);
     const res = await fetchQuizResponse(form.values as Profession);
-    // setResponse(res);
     dispatch({
       type: QuizActionType.MAKE_QUIZ,
       payload: {
@@ -60,8 +80,6 @@ export default function StepForm() {
         profession: { job: form.values.job, experience: form.values.experience },
       },
     });
-
-    console.log(`Response: ${res}`);
   };
 
   const prevStep = () => {
@@ -70,7 +88,7 @@ export default function StepForm() {
 
   return (
     <div className={styles.container}>
-      <Stepper active={active}>
+      <StyledStepper active={active}>
         <Stepper.Step label="Job Overview" description="What are you applying for?">
           <TextInput
             label="What profession are you applying for?"
@@ -87,8 +105,8 @@ export default function StepForm() {
 
         <Stepper.Step label="Areas of focus" description="Any focus areas?">
           <TagsInput
-            label="Optionally use Enter to submit focus area(s)"
-            placeholder="USE ENTER to submit focus area(s)"
+            label="OPTIONAL: requests specific topics to be included"
+            placeholder="USE ENTER to submit"
             defaultValue={[]}
             clearable
             {...form.getInputProps('focusAreas')}
@@ -107,20 +125,22 @@ export default function StepForm() {
         <Stepper.Completed>
           <LoadingText label="Creating quiz..." mt="2rem" />
         </Stepper.Completed>
-      </Stepper>
+      </StyledStepper>
 
-      <Group justify="flex-end" mt="xl">
-        {active !== 0 && (
-          <Button variant="default" onClick={prevStep}>
-            Back
-          </Button>
-        )}
-        {active <= 1 ? (
-          <Button onClick={nextStep}>Next step</Button>
-        ) : (
-          <Button onClick={sendPrompt}>Yes, Let&apos;s Begin</Button>
-        )}
-      </Group>
+      {!isBuilding && (
+        <Group justify="flex-end" mt="xl">
+          {active !== 0 && (
+            <Button variant="default" onClick={prevStep}>
+              Back
+            </Button>
+          )}
+          {active <= 1 ? (
+            <Button onClick={nextStep}>Next step</Button>
+          ) : (
+            <Button onClick={sendPrompt}>Yes, Let&apos;s Begin</Button>
+          )}
+        </Group>
+      )}
     </div>
   );
 }

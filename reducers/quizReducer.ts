@@ -31,7 +31,7 @@ function answerQuestion(quiz: Quiz, questionIdx: number, userAnswer: string) {
   updatedQuesArr[questionIdx] = updatedQuestion;
   updatedQuiz.questions = updatedQuesArr;
 
-  console.log(`SET USER ANSWER: ${JSON.stringify(updatedQuiz, null, 2)}`);
+  console.log(`CREATING ANSWER: ${questionIdx}`);
   return updatedQuiz;
 }
 
@@ -43,8 +43,8 @@ function addAnalysis(quiz: Quiz, question: string, quesAnalysis: QuestionAnalysi
   updatedQuestion.analysis = quesAnalysis;
   updatedQuesArr[questionIdx] = updatedQuestion;
   updatedQuiz.questions = updatedQuesArr;
+  console.log(`CREATING ANALYSIS: ${questionIdx}`);
 
-  console.log(`SET ANALYSIS: ${JSON.stringify(updatedQuiz, null, 2)}`);
   return updatedQuiz;
 }
 
@@ -53,11 +53,15 @@ export default function quizReducer(quiz: Quiz, action: QuizAction) {
     case QuizActionType.MAKE_QUIZ:
       return { ...quiz, ...buildQuiz(action.payload) };
     case QuizActionType.ANSWER_QUESTION:
+      console.log(`answering question: ${action.payload.questionIdx} `);
       return {
         ...quiz,
         ...answerQuestion(quiz, action.payload.questionIdx, action.payload.userAnswer),
       };
     case QuizActionType.ADD_ANALYSIS:
+      console.log(
+        `Adding analysis question: ${quiz.questions.findIndex((curQues) => curQues.question === action.payload.question)} `
+      );
       return {
         ...quiz,
         ...addAnalysis(quiz, action.payload.question, action.payload.questionAnalysis),

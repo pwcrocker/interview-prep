@@ -29,7 +29,7 @@ export type QuizAction =
       type: QuizActionType.RESET_QUIZ;
     };
 
-interface QuizContextType {
+export interface QuizContextType {
   quiz: Quiz;
   dispatch: React.Dispatch<QuizAction>;
 }

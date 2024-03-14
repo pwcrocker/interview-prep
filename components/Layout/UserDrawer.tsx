@@ -5,6 +5,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { IconUser } from '@tabler/icons-react';
 import { useUser } from '@auth0/nextjs-auth0/client';
 import classes from './UserDrawer.module.css';
+import MySkeleton from '../Skeletons/MySkeleton';
 
 export default function UserDrawer() {
   const [opened, { open, close }] = useDisclosure(false);
@@ -12,9 +13,11 @@ export default function UserDrawer() {
 
   return (
     <>
-      <ActionIcon loading={isLoading} variant="default" size="md" onClick={open}>
-        <IconUser />
-      </ActionIcon>
+      <MySkeleton isVisible={isLoading}>
+        <ActionIcon variant="default" size="md" onClick={open}>
+          <IconUser />
+        </ActionIcon>
+      </MySkeleton>
       <Drawer.Root opened={opened} onClose={close} position="right">
         <Drawer.Overlay />
         <Drawer.Content>

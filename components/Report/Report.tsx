@@ -33,7 +33,7 @@ export default function Report() {
             <Grid.Col key={`${idx}summary`} span={3}>
               {curQues.analysis?.summary}
             </Grid.Col>
-            {curQues.analysis?.summary.toLocaleLowerCase() !== 'correct' && (
+            {curQues.analysis?.detailed && (
               <>
                 <Button onClick={() => handleClick(idx)}>Explain</Button>
                 {openIdx === idx && (
