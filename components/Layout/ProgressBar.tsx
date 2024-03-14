@@ -7,13 +7,9 @@ interface ProgressBarProps {
 
 export default function ProgressBar({ total, current }: ProgressBarProps) {
   return (
-    <>
-      {current <= total && (
-        <Container w="50%">
-          <Text>Progress:</Text>
-          <Progress value={(current / total) * 100} />
-        </Container>
-      )}
-    </>
+    <Container w="50%">
+      <Text>Progress:</Text>
+      <Progress value={(current / total) * 100} />
+    </Container>
   );
 }

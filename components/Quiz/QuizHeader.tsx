@@ -19,7 +19,7 @@ export default function QuizHeader({
     <Stack align="center" mt="xl">
       <Text fs="italic">{job}</Text>
       <Text fs="italic">{experience}</Text>
-      <ProgressBar total={totalQuestions} current={curQuesIdx} />
+      {curQuesIdx < totalQuestions && <ProgressBar total={totalQuestions} current={curQuesIdx} />}
     </Stack>
   );
 }

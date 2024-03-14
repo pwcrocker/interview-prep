@@ -15,7 +15,7 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useMediaQuery } from '@mantine/hooks';
-import { useRouter } from 'next/navigation';
+import { redirect, useRouter } from 'next/navigation';
 import styles from './StepForm.module.css';
 import { fetchQuizResponse } from '@/lib/prompt';
 import { EXPERIENCE } from '@/types/experience';
@@ -72,14 +72,19 @@ export default function StepForm() {
   const sendPrompt = async () => {
     nextStep();
     setIsBuilding(true);
-    const res = await fetchQuizResponse(form.values as Profession);
-    dispatch({
-      type: QuizActionType.MAKE_QUIZ,
-      payload: {
-        response: res,
-        profession: { job: form.values.job, experience: form.values.experience },
-      },
-    });
+    try {
+      const res = await fetchQuizResponse(form.values as Profession);
+      dispatch({
+        type: QuizActionType.MAKE_QUIZ,
+        payload: {
+          response: res,
+          profession: { job: form.values.job, experience: form.values.experience },
+        },
+      });
+    } catch (err) {
+      console.error('Failed to create quiz', err);
+      redirect('/setup');
+    }
   };
 
   const prevStep = () => {
