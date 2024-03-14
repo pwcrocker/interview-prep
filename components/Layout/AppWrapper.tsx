@@ -8,7 +8,7 @@ import classes from './AppWrapper.module.css';
 import LoginButtonSkeleton from '../Skeletons/LoginButtonSkeleton';
 import { ColorSchemeToggle } from '../ColorSchemeToggle/ColorSchemeToggle';
 import UserDrawer from './UserDrawer';
-import MySkeleton from '../Skeletons/MySkeleton';
+import DefaultSkeleton from '../Skeletons/DefaultSkeleton';
 
 export default function AppWrapper({ children }: { children: React.ReactNode }) {
   const [opened, { toggle }] = useDisclosure();
@@ -73,7 +73,7 @@ export default function AppWrapper({ children }: { children: React.ReactNode }) 
         </UnstyledButton>
       </AppShell.Navbar>
       <AppShell.Main>
-        <MySkeleton isVisible={isLoading}>{children}</MySkeleton>
+        <DefaultSkeleton isVisible={isLoading}>{children}</DefaultSkeleton>
       </AppShell.Main>
     </AppShell>
   );

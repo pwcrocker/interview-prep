@@ -1,6 +1,6 @@
 import { Skeleton } from '@mantine/core';
 
-export default function MySkeleton({
+export default function DefaultSkeleton({
   isVisible,
   children,
 }: {
