@@ -10,6 +10,7 @@ todo
 - tech debt
 
   - general
+    - need more code splitting and storybook setup for quicker iteration
     - db
     - error state handling
     - unit testing

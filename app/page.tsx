@@ -8,7 +8,7 @@ export default function HomePage() {
       <Center mih="10rem">
         <Button
           component="a"
-          href="/onboarding"
+          href="/setup"
           variant="gradient"
           gradient={{ from: 'orange', to: 'pink', deg: 236 }}
           size="lg"

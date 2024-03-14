@@ -3,9 +3,19 @@
 /* eslint-disable no-console */
 
 import { useContext, useEffect, useState } from 'react';
-import { Stepper, Button, Group, TextInput, Text, Select, TagsInput } from '@mantine/core';
+import {
+  Stepper,
+  Button,
+  Group,
+  TextInput,
+  Text,
+  Select,
+  TagsInput,
+  StepperProps,
+} from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { useRouter } from 'next/navigation';
+import { useMediaQuery } from '@mantine/hooks';
+import { redirect, useRouter } from 'next/navigation';
 import styles from './StepForm.module.css';
 import { fetchQuizResponse } from '@/lib/prompt';
 import { EXPERIENCE } from '@/types/experience';
@@ -13,8 +23,18 @@ import { Profession } from '@/types/profession';
 import { QuizActionType, QuizContext } from '@/store/QuizContextProvider';
 import LoadingText from '../Layout/LoadingText';
 
+function StyledStepper(props: StepperProps) {
+  const atLeastWidth = useMediaQuery('(min-width: 48em)');
+  return atLeastWidth ? (
+    <Stepper {...props} />
+  ) : (
+    <Stepper {...props} size="sm" orientation="vertical" />
+  );
+}
+
 export default function StepForm() {
   const [active, setActive] = useState(0);
+  const [isBuilding, setIsBuilding] = useState(false);
   const { quiz, dispatch } = useContext(QuizContext);
   const router = useRouter();
 
@@ -51,17 +71,20 @@ export default function StepForm() {
 
   const sendPrompt = async () => {
     nextStep();
-    const res = await fetchQuizResponse(form.values as Profession);
-    // setResponse(res);
-    dispatch({
-      type: QuizActionType.MAKE_QUIZ,
-      payload: {
-        response: res,
-        profession: { job: form.values.job, experience: form.values.experience },
-      },
-    });
-
-    console.log(`Response: ${res}`);
+    setIsBuilding(true);
+    try {
+      const res = await fetchQuizResponse(form.values as Profession);
+      dispatch({
+        type: QuizActionType.MAKE_QUIZ,
+        payload: {
+          response: res,
+          profession: { job: form.values.job, experience: form.values.experience },
+        },
+      });
+    } catch (err) {
+      console.error('Failed to create quiz', err);
+      redirect('/setup');
+    }
   };
 
   const prevStep = () => {
@@ -70,7 +93,7 @@ export default function StepForm() {
 
   return (
     <div className={styles.container}>
-      <Stepper active={active}>
+      <StyledStepper active={active}>
         <Stepper.Step label="Job Overview" description="What are you applying for?">
           <TextInput
             label="What profession are you applying for?"
@@ -84,11 +107,10 @@ export default function StepForm() {
             {...form.getInputProps('experience')}
           />
         </Stepper.Step>
-
         <Stepper.Step label="Areas of focus" description="Any focus areas?">
           <TagsInput
-            label="Optionally use Enter to submit focus area(s)"
-            placeholder="USE ENTER to submit focus area(s)"
+            label="OPTIONAL: requests specific topics to be included"
+            placeholder="USE ENTER to submit"
             defaultValue={[]}
             clearable
             {...form.getInputProps('focusAreas')}
@@ -99,28 +121,29 @@ export default function StepForm() {
             Everything appear correct?
           </Text>
           <Text>{`Profession: ${form.values.job}`}</Text>
-          <Text> {`Experience: ${form.values.experience}`}</Text>
+          <Text>{`Experience: ${form.values.experience}`}</Text>
           {form.values.focusAreas?.length > 0 && (
-            <Text> {`Focus Areas: ${form.values.focusAreas}`}</Text>
+            <Text>{`Focus Areas: ${form.values.focusAreas}`}</Text>
           )}
         </Stepper.Step>
         <Stepper.Completed>
           <LoadingText label="Creating quiz..." mt="2rem" />
         </Stepper.Completed>
-      </Stepper>
-
-      <Group justify="flex-end" mt="xl">
-        {active !== 0 && (
-          <Button variant="default" onClick={prevStep}>
-            Back
-          </Button>
-        )}
-        {active <= 1 ? (
-          <Button onClick={nextStep}>Next step</Button>
-        ) : (
-          <Button onClick={sendPrompt}>Yes, Let&apos;s Begin</Button>
-        )}
-      </Group>
+      </StyledStepper>
+      {!isBuilding && (
+        <Group justify="flex-end" mt="xl">
+          {active !== 0 && (
+            <Button variant="default" onClick={prevStep}>
+              Back
+            </Button>
+          )}
+          {active <= 1 ? (
+            <Button onClick={nextStep}>Next step</Button>
+          ) : (
+            <Button onClick={sendPrompt}>Yes, Let&apos;s Begin</Button>
+          )}
+        </Group>
+      )}
     </div>
   );
 }

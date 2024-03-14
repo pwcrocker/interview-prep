@@ -4,18 +4,21 @@
 
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { Button, Container, Flex, Text, Textarea } from '@mantine/core';
+import { Button, Container, Flex, LoadingOverlay, Text, Textarea } from '@mantine/core';
 import { QuizActionType, QuizContext } from '@/store/QuizContextProvider';
 import { Question } from '@/types/quiz';
 import { checkAnswer } from '@/lib/prompt';
 import LoadingText from '../Layout/LoadingText';
+import QuizHeader from './QuizHeader';
 
-function Question({
+function QuizQuestion({
   question,
   handleNext,
+  isSubmittable,
 }: {
   question: Question;
   handleNext: (userAnswer: string) => void;
+  isSubmittable: boolean;
 }) {
   const [curAnswer, setCurAnswer] = useState('');
 
@@ -35,7 +38,15 @@ function Question({
           value={curAnswer}
           onChange={(e) => setCurAnswer(e.currentTarget.value)}
         />
-        <Button onClick={processSubmit}>Submit</Button>
+        <Button onClick={processSubmit} disabled={!isSubmittable}>
+          <LoadingOverlay
+            visible={!isSubmittable}
+            zIndex={1000}
+            overlayProps={{ radius: 'xs', blur: 2 }}
+            loaderProps={{ size: 20 }}
+          />
+          Submit
+        </Button>
       </Flex>
     </Container>
   );
@@ -48,11 +59,7 @@ export default function Quiz() {
   const router = useRouter();
   const pathname = usePathname();
 
-  const isDone = useCallback(() => {
-    console.log(`index: ${questionIdx}`);
-    console.log(`questions: ${JSON.stringify(quiz.questions, null, 2)}`);
-    return questionIdx >= quiz.questions.length;
-  }, [questionIdx]);
+  const isDone = useCallback(() => questionIdx >= quiz.questions.length, [questionIdx]);
 
   useEffect(() => {
     if (isDone() && !isFetching) {
@@ -60,19 +67,29 @@ export default function Quiz() {
     }
   }, [isDone, isFetching]);
 
-  useEffect(() => {
-    console.log(`pathname ${pathname}`);
-  }, [pathname]);
-
   function handleNext(userAnswer: string) {
     setIsFetching(true);
-    checkAnswer({ question: quiz.questions[questionIdx].question, userAnswer }).then((res) => {
-      dispatch({
-        type: QuizActionType.ADD_ANALYSIS,
-        payload: { question: quiz.questions[questionIdx].question, questionAnalysis: res },
+
+    checkAnswer({ question: quiz.questions[questionIdx].question, userAnswer })
+      .then((res) => {
+        dispatch({
+          type: QuizActionType.ADD_ANALYSIS,
+          payload: { question: quiz.questions[questionIdx].question, questionAnalysis: res },
+        });
+        setIsFetching(false);
+      })
+      .catch((err) => {
+        console.error(`Failed to evaluate answer for: ${questionIdx} --- ${err}`);
+        dispatch({
+          type: QuizActionType.ADD_ANALYSIS,
+          payload: {
+            question: quiz.questions[questionIdx].question,
+            questionAnalysis: { summary: 'Failed', detailed: 'Failed to fetch answer' },
+          },
+        });
+        setIsFetching(false);
       });
-      setIsFetching(false);
-    });
+
     dispatch({
       type: QuizActionType.ANSWER_QUESTION,
       payload: { questionIdx, userAnswer },
@@ -82,7 +99,19 @@ export default function Quiz() {
 
   return (
     <>
-      {!isDone() && <Question question={quiz.questions[questionIdx]} handleNext={handleNext} />}
+      <QuizHeader
+        job={quiz.attributes.profession.job}
+        experience={quiz.attributes.profession.experience!.toString()}
+        totalQuestions={quiz.questions.length}
+        curQuesIdx={questionIdx}
+      />
+      {!isDone() && (
+        <QuizQuestion
+          question={quiz.questions[questionIdx]}
+          handleNext={handleNext}
+          isSubmittable={!isFetching}
+        />
+      )}
       {isDone() && <LoadingText label="Loading results..." mt="3rem" />}
     </>
   );
