@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { AppShell, Burger, Center, Flex, Group, UnstyledButton } from '@mantine/core';
+import { AppShell, Burger, Button, Center, Flex, Group, UnstyledButton } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useUser } from '@auth0/nextjs-auth0/client';
 import classes from './AppWrapper.module.css';
@@ -22,7 +22,7 @@ export default function AppWrapper({ children }: { children: React.ReactNode }) 
       <AppShell.Header>
         <Group h="100%" px="md">
           <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-          <Group justify="space-between" style={{ flex: 1 }}>
+          <Group justify="space-between" align="center" style={{ flex: 1 }}>
             <Link href="/">
               <Center>
                 <svg
@@ -46,21 +46,43 @@ export default function AppWrapper({ children }: { children: React.ReactNode }) 
                 </svg>
               </Center>
             </Link>
-            <Flex ml="xl" gap="1rem" visibleFrom="sm">
+            <Flex align="center" ml="xl" gap="1rem" visibleFrom="sm">
               <ColorSchemeToggle isLoading={isLoading} />
               <DefaultSkeleton isVisible={isLoading}>
                 {user ? (
                   <UserDrawer />
                 ) : (
-                  <UnstyledButton className={classes.control} component="a" href="/api/auth/login">
+                  <Button
+                    variant="default"
+                    size="xs"
+                    autoContrast
+                    className={classes.control}
+                    component="a"
+                    href="/api/auth/login"
+                  >
                     Log In
-                  </UnstyledButton>
+                  </Button>
                 )}
               </DefaultSkeleton>
             </Flex>
-            <Flex gap="1rem" ml="xl" hiddenFrom="sm">
+            <Flex gap="1rem" justify="center" align="center" hiddenFrom="sm">
               <ColorSchemeToggle isLoading={isLoading} />
-              <UserDrawer />
+              {user ? (
+                <UserDrawer />
+              ) : (
+                <DefaultSkeleton isVisible={isLoading}>
+                  <Button
+                    variant="default"
+                    size="xs"
+                    autoContrast
+                    className={classes.control}
+                    component="a"
+                    href="/api/auth/login"
+                  >
+                    Log In
+                  </Button>
+                </DefaultSkeleton>
+              )}
             </Flex>
           </Group>
         </Group>

@@ -15,7 +15,7 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useMediaQuery } from '@mantine/hooks';
-import { redirect, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import styles from './StepForm.module.css';
 import { fetchQuizResponse } from '@/lib/prompt';
 import { EXPERIENCE } from '@/types/experience';
@@ -37,6 +37,7 @@ export default function StepForm() {
   const [isBuilding, setIsBuilding] = useState(false);
   const { quiz, dispatch } = useContext(QuizContext);
   const router = useRouter();
+  const [error, setError] = useState<Error>();
 
   const form = useForm({
     initialValues: {
@@ -54,6 +55,13 @@ export default function StepForm() {
       return {};
     },
   });
+
+  // have to do this to trigger error.tsx
+  useEffect(() => {
+    if (error) {
+      throw error;
+    }
+  }, [error]);
 
   useEffect(() => {
     if (quiz.questions?.length > 0) {
@@ -81,9 +89,9 @@ export default function StepForm() {
           profession: { job: form.values.job, experience: form.values.experience },
         },
       });
-    } catch (err) {
-      console.error('Failed to create quiz', err);
-      redirect('/setup');
+    } catch (err: any) {
+      // doing this to trigger redirect to error.tsx
+      setError(err);
     }
   };
 

@@ -4,4 +4,6 @@ export default withMiddlewareAuthRequired();
 
 export const config = {
   matcher: ['/setup/:path*', '/prep/:path*'],
+  // turn off middleware to allow LAN
+  // matcher: [],
 };
