@@ -11,6 +11,9 @@ todo
 
   - general
     - need more code splitting and storybook setup for quicker iteration
+    - icons might need to be wrapped for styling
+    - skeletons different sizes in nav
+    - maybe create more specific skeletons
     - db
     - error state handling
     - unit testing

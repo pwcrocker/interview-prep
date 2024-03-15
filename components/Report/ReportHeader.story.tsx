@@ -10,5 +10,11 @@ export default meta;
 type Story = StoryObj<typeof ReportHeader>;
 
 export const Simple: Story = {
-  args: {},
+  args: {
+    counts: {
+      great: 1,
+      good: 3,
+      improve: 10,
+    },
+  },
 };

@@ -30,8 +30,8 @@ function QuizQuestion({
   return (
     <Container size="xs">
       <Flex gap="xl" direction="column" mt="xl" p="md" bg="rgba(0, 0, 0, .3)">
-        <Text fs="italic">Topic: {question.attributes.topic}</Text>
-        <Text fw={700}>Question: {question.question}</Text>
+        <Text fs="italic">{question.attributes.topic}</Text>
+        <Text fw={700}>{question.question}</Text>
         <Textarea
           autosize
           minRows={4}

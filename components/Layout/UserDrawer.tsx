@@ -14,7 +14,7 @@ export default function UserDrawer() {
   return (
     <>
       <DefaultSkeleton isVisible={isLoading}>
-        <ActionIcon variant="default" size="md" onClick={open}>
+        <ActionIcon variant="default" size={32} onClick={open}>
           <IconUser />
         </ActionIcon>
       </DefaultSkeleton>

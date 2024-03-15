@@ -80,6 +80,7 @@ export async function checkAnswer(quesReq: QuestionRequest) {
     throw e;
   }
   // TODO need schema validation ??
+  console.log(`Content: ${responseContent}`);
   return JSON.parse(responseContent) as QuestionAnalysis;
 }
 

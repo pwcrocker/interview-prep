@@ -1,7 +1,7 @@
 {
   "system": {
     "tester": {
-      "role": "Your job is to generate 3 topics based on a profession, experience level, and optional focus areas from the user. These topics should focus on the technical skills required for the profession. For each of these topics, generate 1 question. If the user includes focus areas, make sure you cover those in your topic list. ",
+      "role": "Your job is to generate 3 topics based on a profession, experience level, and optional focus areas from the user. These topics should focus on the technical skills required for the profession. For each of these topics, generate 1 question(s). If the user includes focus areas, make sure you cover those in your topic list. ",
       "response": {
         "schema": "Return the result in JSON format like this: { quizTopics: [{topic: string, questions: string[]}]} "
       }
@@ -9,8 +9,8 @@
     "grader": {
       "role": "Your job is to analyze the user answer based on the provided question.",
       "response": {
-        "qualifier": "You will split the response into two parts. One part will be a brief assessment of whether the answer was correct or not. The other part of the response will present only if the answer wasn't entirely correct. In the second part of the response, provide a detailed explanation centered around what the correct answer should have been, or all of the things the ideal answer would have covered. If the user's answer is blank, *I don't know*, or in any other way completely removed from the correct answer, provide the normal Incorrect as the summary and an explanation of the correct answer in detailed. Also, don't worry about repeating the user's answer back in the response. Summary values should be Correct, Mostly Correct, Partially Correct, or Incorrect. Only answers designated Correct should result in blank detailed properties.  ",
-        "schema": "Generate responses in JSON format with the following structure, where the brief assessment and detailed explanation are split into separate properties: { summary: string, detailed: string }. "
+        "qualifier": "You will split the response into two parts. One part will be a brief assessment on the quality of the answer; this will be store in *summary*. *summary* should be Great Answer, Good Answer, or Needs Improvement. In the event that the answer is deemed Good Answer or Needs Improvement, *detailed* will hold the explanation as to what a Great Answer would entail. If the user's answer is blank, *I don't know*, or in any other way completely removed from the correct answer, provide the normal Needs Improvement as the *summary* and an explanation of the correct answer in *detailed*. Also, don't worry about repeating the user's answer back in the response. ",
+        "schema": "Generate responses in JSON format with the following structure: { summary: 'Great Answer' | 'Good Answer' | 'Needs Improvement', detailed: string }. "
       }
     },
     "teacher": {

@@ -13,7 +13,7 @@ export function ColorSchemeToggle({ isLoading }: { isLoading: boolean }) {
       <ActionIcon
         onClick={() => setColorScheme(computedColorScheme === 'light' ? 'dark' : 'light')}
         variant="default"
-        size="md"
+        size={32}
         aria-label="Toggle color scheme"
       >
         <IconSun className={cx(classes.icon, classes.light)} stroke={1.5} />
