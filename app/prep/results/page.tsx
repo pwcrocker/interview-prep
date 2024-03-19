@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 import { Stack } from '@mantine/core';
 import { QuizContext } from '@/store/QuizContextProvider';
 import ReportHeader, { SummaryCounts } from '@/components/Report/ReportHeader';
-import NewReport from '@/components/Report/NewReport';
+import Report from '@/components/Report/Report';
 import { Quiz } from '@/types/quiz';
 
 function getSummaryCounts(quiz: Quiz) {
@@ -39,7 +39,7 @@ export default function ReportPage() {
   return (
     <Stack gap="xl">
       <ReportHeader counts={summaryCounts} />
-      <NewReport />
+      <Report />
     </Stack>
   );
 }

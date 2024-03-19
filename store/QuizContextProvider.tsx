@@ -9,6 +9,7 @@ export enum QuizActionType {
   MAKE_QUIZ = 'make-quiz',
   ANSWER_QUESTION = 'answer-question',
   ADD_ANALYSIS = 'add-analysis',
+  RETAKE_QUIZ = 'retake-quiz',
   RESET_QUIZ = 'reset-quiz',
 }
 
@@ -24,6 +25,10 @@ export type QuizAction =
   | {
       type: QuizActionType.ADD_ANALYSIS;
       payload: { question: string; questionAnalysis: QuestionAnalysis };
+    }
+  | {
+      type: QuizActionType.RETAKE_QUIZ;
+      payload: { quiz: Quiz };
     }
   | {
       type: QuizActionType.RESET_QUIZ;

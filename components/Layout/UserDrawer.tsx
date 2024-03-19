@@ -30,6 +30,9 @@ export default function UserDrawer() {
             <Drawer.CloseButton />
           </Drawer.Header>
           <Drawer.Body>
+            <UnstyledButton className={classes.control} component="a" href={`/user/${user?.sub}`}>
+              Profile
+            </UnstyledButton>
             {user ? (
               <UnstyledButton className={classes.control} component="a" href="/api/auth/logout">
                 Log Out

@@ -84,7 +84,10 @@ export default function Quiz() {
           type: QuizActionType.ADD_ANALYSIS,
           payload: {
             question: quiz.questions[questionIdx].question,
-            questionAnalysis: { summary: 'Failed', detailed: 'Failed to fetch answer' },
+            questionAnalysis: {
+              summary: 'oops...',
+              detailed: 'Failed to fetch answer - try resubmitting',
+            },
           },
         });
         setIsFetching(false);

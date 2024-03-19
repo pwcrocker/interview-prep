@@ -66,6 +66,8 @@ export default function quizReducer(quiz: Quiz, action: QuizAction) {
         ...quiz,
         ...addAnalysis(quiz, action.payload.question, action.payload.questionAnalysis),
       };
+    case QuizActionType.RETAKE_QUIZ:
+      return { ...quiz, ...action.payload.quiz };
     case QuizActionType.RESET_QUIZ:
       return initialReducerState;
     default:

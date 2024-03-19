@@ -5,4 +5,5 @@ export interface Profession {
   job: Nullable<string>;
   experience: Nullable<EXPERIENCE>;
   focusAreas?: string[];
+  excludedAreas?: string[];
 }

@@ -1,3 +1,5 @@
+'use client';
+
 import { Button, Center } from '@mantine/core';
 import { Welcome } from '../components/Welcome/Welcome';
 

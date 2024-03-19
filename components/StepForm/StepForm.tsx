@@ -16,12 +16,14 @@ import {
 import { useForm } from '@mantine/form';
 import { useMediaQuery } from '@mantine/hooks';
 import { useRouter } from 'next/navigation';
+import { useUser } from '@auth0/nextjs-auth0/client';
 import styles from './StepForm.module.css';
 import { fetchQuizResponse } from '@/lib/prompt';
 import { EXPERIENCE } from '@/types/experience';
 import { Profession } from '@/types/profession';
 import { QuizActionType, QuizContext } from '@/store/QuizContextProvider';
 import LoadingText from '../Layout/LoadingText';
+import { saveQuiz } from '@/lib/db/database';
 
 function StyledStepper(props: StepperProps) {
   const atLeastWidth = useMediaQuery('(min-width: 48em)');
@@ -35,6 +37,7 @@ function StyledStepper(props: StepperProps) {
 export default function StepForm() {
   const [active, setActive] = useState(0);
   const [isBuilding, setIsBuilding] = useState(false);
+  const { user } = useUser();
   const { quiz, dispatch } = useContext(QuizContext);
   const router = useRouter();
   const [error, setError] = useState<Error>();
@@ -44,6 +47,7 @@ export default function StepForm() {
       job: '',
       experience: EXPERIENCE.INTERMEDIATE,
       focusAreas: [] as string[],
+      excludedAreas: [] as string[],
     },
     validate: (values) => {
       if (active === 0) {
@@ -64,8 +68,17 @@ export default function StepForm() {
   }, [error]);
 
   useEffect(() => {
+    const saveToDB = async () => {
+      if (!user?.email) {
+        throw Error('No email for user');
+      }
+      await saveQuiz({ authId: user.sub!, email: user.email, quizzes: [] }, quiz);
+    };
+
     if (quiz.questions?.length > 0) {
-      router.push('/prep');
+      saveToDB().then(() => {
+        router.push('/prep');
+      });
     }
   }, [quiz]);
 
@@ -112,16 +125,25 @@ export default function StepForm() {
             label="What experience level?"
             data={[...Object.values(EXPERIENCE)]}
             defaultValue={EXPERIENCE.INTERMEDIATE}
+            allowDeselect={false}
             {...form.getInputProps('experience')}
           />
         </Stepper.Step>
         <Stepper.Step label="Areas of focus" description="Any focus areas?">
           <TagsInput
-            label="OPTIONAL: requests specific topics to be included"
+            label="OPTIONAL: requests specific topics to be INCLUDED"
             placeholder="USE ENTER to submit"
             defaultValue={[]}
             clearable
             {...form.getInputProps('focusAreas')}
+          />
+          <TagsInput
+            mt="md"
+            label="OPTIONAL: requests specific topics to be EXCLUDED"
+            placeholder="USE ENTER to submit"
+            defaultValue={[]}
+            clearable
+            {...form.getInputProps('excludedAreas')}
           />
         </Stepper.Step>
         <Stepper.Step label="Confirmation" description="Confirm and Start">
@@ -131,7 +153,10 @@ export default function StepForm() {
           <Text>{`Profession: ${form.values.job}`}</Text>
           <Text>{`Experience: ${form.values.experience}`}</Text>
           {form.values.focusAreas?.length > 0 && (
-            <Text>{`Focus Areas: ${form.values.focusAreas}`}</Text>
+            <Text>{`Included Focus Areas: ${form.values.focusAreas}`}</Text>
+          )}
+          {form.values.excludedAreas?.length > 0 && (
+            <Text>{`Excluded Focus Areas: ${form.values.excludedAreas}`}</Text>
           )}
         </Stepper.Step>
         <Stepper.Completed>
