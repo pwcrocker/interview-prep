@@ -2,23 +2,20 @@ import { ActionIcon, useMantineColorScheme, useComputedColorScheme } from '@mant
 import { IconSun, IconMoon } from '@tabler/icons-react';
 import cx from 'clsx';
 import classes from './ColorSchemeToggle.module.css';
-import DefaultSkeleton from '../Skeletons/DefaultSkeleton';
 
-export function ColorSchemeToggle({ isLoading }: { isLoading: boolean }) {
+export function ColorSchemeToggle() {
   const { setColorScheme } = useMantineColorScheme();
   const computedColorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true });
 
   return (
-    <DefaultSkeleton isVisible={isLoading}>
-      <ActionIcon
-        onClick={() => setColorScheme(computedColorScheme === 'light' ? 'dark' : 'light')}
-        variant="default"
-        size={32}
-        aria-label="Toggle color scheme"
-      >
-        <IconSun className={cx(classes.icon, classes.light)} stroke={1.5} />
-        <IconMoon className={cx(classes.icon, classes.dark)} stroke={1.5} />
-      </ActionIcon>
-    </DefaultSkeleton>
+    <ActionIcon
+      onClick={() => setColorScheme(computedColorScheme === 'light' ? 'dark' : 'light')}
+      variant="default"
+      size={32}
+      aria-label="Toggle color scheme"
+    >
+      <IconSun className={cx(classes.icon, classes.light)} stroke={1.5} />
+      <IconMoon className={cx(classes.icon, classes.dark)} stroke={1.5} />
+    </ActionIcon>
   );
 }

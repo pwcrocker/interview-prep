@@ -1,11 +1,11 @@
 import { Title } from '@mantine/core';
-import StepForm from '@/components/StepForm/StepForm';
+import SetupForm from '@/components/Setup/SetupForm';
 
 export default function PrepSetupPage() {
   return (
     <>
       <Title ta="center">Setup</Title>
-      <StepForm />
+      <SetupForm />
     </>
   );
 }

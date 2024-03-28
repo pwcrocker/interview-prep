@@ -5,19 +5,16 @@ import { useDisclosure } from '@mantine/hooks';
 import { IconUser } from '@tabler/icons-react';
 import { useUser } from '@auth0/nextjs-auth0/client';
 import classes from './UserDrawer.module.css';
-import DefaultSkeleton from '../Skeletons/DefaultSkeleton';
 
 export default function UserDrawer() {
   const [opened, { open, close }] = useDisclosure(false);
-  const { user, isLoading } = useUser();
+  const { user } = useUser();
 
   return (
     <>
-      <DefaultSkeleton isVisible={isLoading}>
-        <ActionIcon variant="default" size={32} onClick={open}>
-          <IconUser />
-        </ActionIcon>
-      </DefaultSkeleton>
+      <ActionIcon variant="default" size={32} onClick={open}>
+        <IconUser />
+      </ActionIcon>
       <Drawer.Root opened={opened} onClose={close} position="right">
         <Drawer.Overlay />
         <Drawer.Content>
@@ -30,13 +27,15 @@ export default function UserDrawer() {
             <Drawer.CloseButton />
           </Drawer.Header>
           <Drawer.Body>
-            <UnstyledButton className={classes.control} component="a" href={`/user/${user?.sub}`}>
-              Profile
-            </UnstyledButton>
             {user ? (
-              <UnstyledButton className={classes.control} component="a" href="/api/auth/logout">
-                Log Out
-              </UnstyledButton>
+              <>
+                <Text fw={700} mb="1rem">
+                  Credits: {user.credits_remaining as number}
+                </Text>
+                <UnstyledButton className={classes.control} component="a" href="/api/auth/logout">
+                  Log Out
+                </UnstyledButton>
+              </>
             ) : (
               <UnstyledButton className={classes.control} component="a" href="/api/auth/login">
                 Log In

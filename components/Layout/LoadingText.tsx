@@ -7,7 +7,7 @@ export default function LoadingText({ label, ...props }: { label: string; [key: 
         {label}
       </Text>
       <Box w="80%">
-        <Progress value={100} animated />
+        <Progress color="burntorange.0" value={100} animated />
       </Box>
     </Flex>
   );

@@ -1,50 +1,84 @@
 /* eslint-disable no-console */
 import { QuizAction, QuizActionType, initialReducerState } from '@/store/QuizContextProvider';
-import { Question, QuestionAnalysis, Quiz } from '@/types/quiz';
-import { StitchedResponse } from '@/types/response';
+import { Question, Quiz } from '@/types/quiz';
+import { PreliminaryQuiz } from '@/types/createQuiz';
+import { logJson } from '@/lib/logger';
+import { RetryAnalysis } from '@/types/questionRetry';
+import { GradedQuiz } from '@/types/gradeQuiz';
 
-function buildQuiz(stitchedRes: StitchedResponse) {
+function buildQuiz(prelimQuiz: PreliminaryQuiz) {
   const freshQuiz: Quiz = {
     questions: [],
-    attributes: {
-      profession: stitchedRes.profession,
-    },
+    attributes: prelimQuiz.attributes,
   };
 
-  stitchedRes.response.quizTopics.forEach((quizTopic) => {
-    quizTopic.questions.forEach((question) => {
-      const newQ: Question = { question, attributes: { topic: quizTopic.topic } };
+  prelimQuiz.quiz.quizItems.forEach((quizItem) => {
+    quizItem.questions.forEach((generatedQ) => {
+      const newQ: Question = {
+        id: generatedQ.id,
+        question: generatedQ.question,
+        attributes: { topic: quizItem.topic },
+      };
       freshQuiz.questions.push(newQ);
     });
   });
 
-  console.log(`BUILT QUIZ: ${JSON.stringify(freshQuiz, null, 2)}`);
-
+  logJson('Building fresh quiz: ', freshQuiz);
   return freshQuiz;
 }
 
-function answerQuestion(quiz: Quiz, questionIdx: number, userAnswer: string) {
+interface IdToIndexMap {
+  [x: string]: number;
+}
+
+function gradeQuiz(quiz: Quiz, gradedQuiz: GradedQuiz) {
+  // make a Qid -> Qidx map for O(1) lookup when assigning analysis
+  const map: IdToIndexMap = quiz.questions.reduce(
+    (acc, ques, idx) => ({ ...acc, [ques.id]: idx }),
+    {}
+  );
   const updatedQuiz = { ...quiz };
   const updatedQuesArr = [...updatedQuiz.questions];
+
+  gradedQuiz.gradedItems.forEach((item) => {
+    const { questionId, summary, detailed } = item;
+    // Instantly get index for insertion
+    const questionIdx = map[questionId];
+    const updatedQuestion: Question = {
+      ...updatedQuesArr[questionIdx],
+      analysis: { summary, detailed },
+    };
+    updatedQuesArr[questionIdx] = updatedQuestion;
+  });
+
+  logJson('Grading quiz: ', updatedQuiz);
+  updatedQuiz.questions = updatedQuesArr;
+  return updatedQuiz;
+}
+
+function answerSingleQuestion(quiz: Quiz, questionId: string, userAnswer: string) {
+  const updatedQuiz = { ...quiz };
+  const updatedQuesArr = [...updatedQuiz.questions];
+  const questionIdx = updatedQuesArr.findIndex((ques) => ques.id === questionId);
   const updatedQuestion = { ...updatedQuesArr[questionIdx] };
   updatedQuestion.userAnswer = userAnswer;
   updatedQuesArr[questionIdx] = updatedQuestion;
   updatedQuiz.questions = updatedQuesArr;
 
-  console.log(`CREATING ANSWER: ${questionIdx}`);
+  logJson('Answering single question: ', updatedQuestion);
   return updatedQuiz;
 }
 
-function addAnalysis(quiz: Quiz, question: string, quesAnalysis: QuestionAnalysis) {
-  const questionIdx = quiz.questions.findIndex((curQues) => curQues.question === question);
+function addSingleAnalysis(quiz: Quiz, { questionId, summary, detailed }: RetryAnalysis) {
   const updatedQuiz = { ...quiz };
   const updatedQuesArr = [...updatedQuiz.questions];
+  const questionIdx = updatedQuesArr.findIndex((ques) => ques.id === questionId);
   const updatedQuestion = { ...updatedQuesArr[questionIdx] };
-  updatedQuestion.analysis = quesAnalysis;
+  updatedQuestion.analysis = { summary, detailed };
   updatedQuesArr[questionIdx] = updatedQuestion;
   updatedQuiz.questions = updatedQuesArr;
-  console.log(`CREATING ANALYSIS: ${questionIdx}`);
 
+  logJson('Adding single analysis: ', updatedQuestion);
   return updatedQuiz;
 }
 
@@ -52,19 +86,21 @@ export default function quizReducer(quiz: Quiz, action: QuizAction) {
   switch (action.type) {
     case QuizActionType.MAKE_QUIZ:
       return { ...quiz, ...buildQuiz(action.payload) };
-    case QuizActionType.ANSWER_QUESTION:
-      console.log(`answering question: ${action.payload.questionIdx} `);
+    case QuizActionType.GRADE_QUIZ:
+      return { ...quiz, ...gradeQuiz(quiz, action.payload) };
+    case QuizActionType.ANSWER_SINGLE_QUESTION:
       return {
         ...quiz,
-        ...answerQuestion(quiz, action.payload.questionIdx, action.payload.userAnswer),
+        ...answerSingleQuestion(
+          quiz,
+          action.payload.questionId,
+          action.payload.userAnswer || 'No answer'
+        ),
       };
-    case QuizActionType.ADD_ANALYSIS:
-      console.log(
-        `Adding analysis question: ${quiz.questions.findIndex((curQues) => curQues.question === action.payload.question)} `
-      );
+    case QuizActionType.RETRY_SINGLE_ANALYSIS:
       return {
         ...quiz,
-        ...addAnalysis(quiz, action.payload.question, action.payload.questionAnalysis),
+        ...addSingleAnalysis(quiz, action.payload),
       };
     case QuizActionType.RETAKE_QUIZ:
       return { ...quiz, ...action.payload.quiz };

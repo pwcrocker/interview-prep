@@ -1,5 +1,3 @@
-'use client';
-
 import { Button, Center } from '@mantine/core';
 import { Welcome } from '../components/Welcome/Welcome';
 
@@ -12,7 +10,7 @@ export default function HomePage() {
           component="a"
           href="/setup"
           variant="gradient"
-          gradient={{ from: 'orange', to: 'pink', deg: 236 }}
+          gradient={{ from: 'burntorange.0', to: 'yellow', deg: 130 }}
           size="lg"
           radius="xl"
         >

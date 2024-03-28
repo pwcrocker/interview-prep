@@ -2,13 +2,17 @@
 
 import { createContext, useReducer } from 'react';
 import quizReducer from '@/reducers/quizReducer';
-import { QuestionAnalysis, Quiz } from '@/types/quiz';
-import { StitchedResponse } from '@/types/response';
+import { Quiz } from '@/types/quiz';
+import { PreliminaryQuiz } from '@/types/createQuiz';
+import { EXPERIENCE } from '@/types/experience';
+import { GradedQuiz } from '@/types/gradeQuiz';
+import { RetryAnalysis } from '@/types/questionRetry';
 
 export enum QuizActionType {
   MAKE_QUIZ = 'make-quiz',
-  ANSWER_QUESTION = 'answer-question',
-  ADD_ANALYSIS = 'add-analysis',
+  GRADE_QUIZ = 'grade-quiz',
+  ANSWER_SINGLE_QUESTION = 'answer-single-question',
+  RETRY_SINGLE_ANALYSIS = 'retry-single-analysis',
   RETAKE_QUIZ = 'retake-quiz',
   RESET_QUIZ = 'reset-quiz',
 }
@@ -16,15 +20,19 @@ export enum QuizActionType {
 export type QuizAction =
   | {
       type: QuizActionType.MAKE_QUIZ;
-      payload: StitchedResponse;
+      payload: PreliminaryQuiz;
     }
   | {
-      type: QuizActionType.ANSWER_QUESTION;
-      payload: { questionIdx: number; userAnswer: string };
+      type: QuizActionType.GRADE_QUIZ;
+      payload: GradedQuiz;
     }
   | {
-      type: QuizActionType.ADD_ANALYSIS;
-      payload: { question: string; questionAnalysis: QuestionAnalysis };
+      type: QuizActionType.ANSWER_SINGLE_QUESTION;
+      payload: { questionId: string; userAnswer: string };
+    }
+  | {
+      type: QuizActionType.RETRY_SINGLE_ANALYSIS;
+      payload: RetryAnalysis;
     }
   | {
       type: QuizActionType.RETAKE_QUIZ;
@@ -43,9 +51,14 @@ export const initialReducerState: Quiz = {
   questions: [],
   attributes: {
     profession: {
-      job: null,
-      experience: null,
+      job: '',
+      experience: EXPERIENCE.INTERMEDIATE,
     },
+    topics: 3,
+    quesPerTopic: 1,
+    includedAreas: [],
+    excludedAreas: [],
+    exclusiveAreas: [],
   },
 };
 

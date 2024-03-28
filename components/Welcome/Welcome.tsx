@@ -9,7 +9,7 @@ export function Welcome() {
           inherit
           variant="gradient"
           component="span"
-          gradient={{ from: 'maroon', to: 'orange' }}
+          gradient={{ from: 'burntorange.0', to: 'yellow' }}
         >
           prepforwork.ai
         </Text>

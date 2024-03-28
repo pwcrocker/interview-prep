@@ -3,7 +3,7 @@
 import { useContext } from 'react';
 import { redirect } from 'next/navigation';
 import { Title } from '@mantine/core';
-import Quiz from '@/components/Quiz/Quiz';
+import SplitQuiz from '@/components/Quiz/SplitQuiz';
 import { QuizContext } from '@/store/QuizContextProvider';
 
 export default function QuizPage() {
@@ -17,7 +17,7 @@ export default function QuizPage() {
   return (
     <>
       <Title ta="center">Prep Session</Title>
-      <Quiz />
+      <SplitQuiz />
     </>
   );
 }

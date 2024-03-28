@@ -9,7 +9,7 @@ export default function ProgressBar({ total, current }: ProgressBarProps) {
   return (
     <Container w="50%">
       <Text>Progress:</Text>
-      <Progress value={(current / total) * 100} />
+      <Progress color="burntorange.0" value={(current / total) * 100} />
     </Container>
   );
 }
