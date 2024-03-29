@@ -13,8 +13,8 @@ import QuizButtonGroup from './QuizButtonGroup';
 import FinalQuizSubmit from './FinalQuizSubmit';
 
 export const RETRY_SUMMARY_VALUE = 'Retry';
-const MAX_TEXTAREA_LEN = 1000;
-const SUBMIT_DELAY = 4000;
+const MAX_TEXTAREA_LEN = 500;
+const SUBMIT_DELAY = 3000;
 
 const cleanAnswer = (userAnswer: string) =>
   userAnswer.length > MAX_TEXTAREA_LEN ? userAnswer.substring(0, MAX_TEXTAREA_LEN) : userAnswer;

@@ -1,20 +1,14 @@
-/* eslint-disable no-restricted-syntax */
 'use server';
 
-/* eslint-disable no-console */
+/* eslint-disable no-restricted-syntax */
 
 import OpenAI from 'openai';
-import {
-  getTesterPrompt,
-  getGraderPrompt,
-  getSingleGraderPrompt,
-  getTesterPromptStream,
-} from '@/config/promptConfig';
+import { getTesterPrompt, getGraderPrompt, getSingleGraderPrompt } from '@/config/promptConfig';
 import { QuizResponse } from '@/types/createQuiz';
 import { QuizAttributes, SimpleQuestion } from '@/types/quiz';
 import { GradedQuiz } from '@/types/gradeQuiz';
 import { RetryAnalysis } from '@/types/questionRetry';
-import { log } from './logger';
+import { log, logErr, logJson } from './logger';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -25,7 +19,6 @@ const AI_MODEL = 'gpt-3.5-turbo';
 export async function fetchQuiz(quizAttr: QuizAttributes) {
   const userPrompt = JSON.stringify(quizAttr.profession);
   const testerPrompt = getTesterPrompt(quizAttr);
-  console.log(`TESTER: ${JSON.stringify(testerPrompt, null, 2)}`);
 
   let responseContent;
   try {
@@ -42,16 +35,21 @@ export async function fetchQuiz(quizAttr: QuizAttributes) {
       ],
       model: AI_MODEL,
     });
-    console.log(`USER PROMPT: ${JSON.stringify(userPrompt, null, 2)}`);
+    logJson('Tester system prompt: ', testerPrompt);
+    logJson('Tester user prompt: ', userPrompt);
+
+    log('Token Report');
+    log(`Prompt tokens: ${response?.usage?.prompt_tokens}`);
+    log(`Completion tokens: ${response?.usage?.completion_tokens}`);
+    log(`Total tokens: ${response?.usage?.total_tokens}`);
 
     responseContent = response?.choices[0].message.content;
-    console.log(`RESPONSE: ${responseContent}`);
 
     if (!responseContent) {
       throw Error('Response content was null');
     }
   } catch (e) {
-    console.log('Failed to fetch questions: ', e);
+    logErr('Failed to fetch questions: ', e);
     throw e;
   }
   // TODO need schema validation ??
@@ -60,10 +58,11 @@ export async function fetchQuiz(quizAttr: QuizAttributes) {
 
 export async function gradeQuiz(finalAnswers: SimpleQuestion[]) {
   let responseContent;
+  const graderPrompt = getGraderPrompt();
   try {
     const response = await openai.chat.completions.create({
       messages: [
-        { role: 'system', content: getGraderPrompt() },
+        { role: 'system', content: graderPrompt },
         {
           role: 'user',
           content: JSON.stringify(finalAnswers),
@@ -71,6 +70,13 @@ export async function gradeQuiz(finalAnswers: SimpleQuestion[]) {
       ],
       model: AI_MODEL,
     });
+    logJson('Grader system prompt: ', graderPrompt);
+    logJson('Grader user prompt: ', finalAnswers);
+
+    log('Token Report');
+    log(`Prompt tokens: ${response?.usage?.prompt_tokens}`);
+    log(`Completion tokens: ${response?.usage?.completion_tokens}`);
+    log(`Total tokens: ${response?.usage?.total_tokens}`);
 
     responseContent = response.choices[0].message.content;
 
@@ -78,11 +84,10 @@ export async function gradeQuiz(finalAnswers: SimpleQuestion[]) {
       throw Error('Response content was null');
     }
   } catch (e) {
-    console.log('Failed to fetch questions: ', e);
+    logErr('Failed to fetch questions: ', e);
     throw e;
   }
   // TODO need schema validation ??
-  console.log(`Content: ${responseContent}`);
   return JSON.parse(responseContent) as GradedQuiz;
 }
 
@@ -106,10 +111,9 @@ export async function checkSingleAnswer(ques: SimpleQuestion) {
       throw Error('Response content was null');
     }
   } catch (e) {
-    console.log('Failed to fetch questions: ', e);
+    logErr('Failed to fetch questions: ', e);
     throw e;
   }
   // TODO need schema validation ??
-  console.log(`Content: ${responseContent}`);
   return JSON.parse(responseContent) as RetryAnalysis;
 }

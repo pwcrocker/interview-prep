@@ -14,6 +14,7 @@ export default function OverviewSection({
       <TextInput
         label="What profession are you applying for?"
         placeholder="i.e. Software Engineer"
+        maxLength={30}
         {...jobInputProps}
       />
       <Select
