@@ -26,7 +26,7 @@ export const Simple: Story = {
       attributes: { topic: 'mock topic' },
       question: 'mock question',
       userAnswer: 'mock answer',
-      analysis: { summary: 'Good Answer', detailed: 'mock detailed' },
+      analysis: { rating: 3, explanation: 'mock explanation' },
     },
   },
 };

@@ -11,6 +11,6 @@ type Story = StoryObj<typeof Rating>;
 
 export const Simple: Story = {
   args: {
-    analysisSummary: 'Good Answer',
+    rating: 3,
   },
 };

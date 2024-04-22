@@ -10,18 +10,18 @@ import MobileActionButtons from '../Navbar/MobileActionButtons';
 import BurgerDrawer from '../Navbar/BurgerDrawer';
 
 export default function AppWrapper({ children }: { children: React.ReactNode }) {
-  const [opened, { toggle }] = useDisclosure();
+  const [burgerOpened, { toggle }] = useDisclosure();
   const { user, isLoading } = useUser();
 
   return (
     <AppShell
       header={{ height: 60 }}
-      navbar={{ width: 300, breakpoint: 'sm', collapsed: { desktop: true, mobile: !opened } }}
+      navbar={{ width: 300, breakpoint: 'sm', collapsed: { desktop: true, mobile: !burgerOpened } }}
       padding="md"
     >
       <AppShell.Header>
         <Group h="100%" px="md">
-          <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
+          <Burger opened={burgerOpened} onClick={toggle} hiddenFrom="sm" size="sm" />
           <Group justify="space-between" align="center" style={{ flex: 1 }}>
             <Logo />
             {/* Desktop (bigger screen) section */}

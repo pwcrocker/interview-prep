@@ -12,14 +12,13 @@ import QuizQuestion from './QuizQuestion';
 import QuizButtonGroup from './QuizButtonGroup';
 import FinalQuizSubmit from './FinalQuizSubmit';
 
-export const RETRY_SUMMARY_VALUE = 'Retry';
 const MAX_TEXTAREA_LEN = 500;
-const SUBMIT_DELAY = 3000;
+const SUBMIT_DELAY = 4000;
 
 const cleanAnswer = (userAnswer: string) =>
   userAnswer.length > MAX_TEXTAREA_LEN ? userAnswer.substring(0, MAX_TEXTAREA_LEN) : userAnswer;
 
-export default function SplitQuiz() {
+export default function Quiz() {
   const { quiz, dispatch } = useContext(QuizContext);
   const [questionIdx, setQuestionIdx] = useState(0);
   const [curAnswer, setCurAnswer] = useState('');
@@ -77,6 +76,7 @@ export default function SplitQuiz() {
       .catch((err) => {
         logErr('Failed to grade quiz: ', err);
         setIsFetching(false);
+        throw err;
       });
   }
 

@@ -31,17 +31,17 @@ export default function QuizAttributeSection({
   return (
     <Stack>
       <NumberInput
-        label="Number of Topics (1-3)"
+        label="Number of Topics (1-4)"
         clampBehavior="strict"
         min={1}
-        max={3}
+        max={4}
         {...topicsProps}
       />
       <NumberInput
-        label="Number of Questions per Topic (1-2)"
+        label="Number of Questions per Topic (1-3)"
         clampBehavior="strict"
         min={1}
-        max={2}
+        max={3}
         {...quesProps}
       />
       <Select

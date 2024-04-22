@@ -3,11 +3,10 @@
 /* eslint-disable no-restricted-syntax */
 
 import OpenAI from 'openai';
-import { getTesterPrompt, getGraderPrompt, getSingleGraderPrompt } from '@/config/promptConfig';
+import { getTesterPrompt, getGraderPrompt } from '@/config/promptConfig';
 import { QuizResponse } from '@/types/createQuiz';
 import { QuizAttributes, SimpleQuestion } from '@/types/quiz';
 import { GradedQuiz } from '@/types/gradeQuiz';
-import { RetryAnalysis } from '@/types/questionRetry';
 import { log, logErr, logJson } from './logger';
 
 const openai = new OpenAI({
@@ -89,31 +88,4 @@ export async function gradeQuiz(finalAnswers: SimpleQuestion[]) {
   }
   // TODO need schema validation ??
   return JSON.parse(responseContent) as GradedQuiz;
-}
-
-export async function checkSingleAnswer(ques: SimpleQuestion) {
-  let responseContent;
-  try {
-    const response = await openai.chat.completions.create({
-      messages: [
-        { role: 'system', content: getSingleGraderPrompt() },
-        {
-          role: 'user',
-          content: JSON.stringify(ques),
-        },
-      ],
-      model: AI_MODEL,
-    });
-
-    responseContent = response.choices[0].message.content;
-
-    if (!responseContent) {
-      throw Error('Response content was null');
-    }
-  } catch (e) {
-    logErr('Failed to fetch questions: ', e);
-    throw e;
-  }
-  // TODO need schema validation ??
-  return JSON.parse(responseContent) as RetryAnalysis;
 }

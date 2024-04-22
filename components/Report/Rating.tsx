@@ -3,41 +3,44 @@
 import { useEffect, useState } from 'react';
 import { IconStar } from '@tabler/icons-react';
 import { Group } from '@mantine/core';
+import { logWarn } from '@/lib/logger';
 
-function EmptyStar() {
-  return <IconStar color="darkorange" />;
-}
+// function EmptyStar() {
+//   return <IconStar color="darkorange" />;
+// }
 
 function FilledStar() {
   return <IconStar color="darkorange" fill="darkorange" />;
 }
 
-export default function Rating({ analysisSummary }: { analysisSummary: string }) {
-  const [stars, setStars] = useState([
-    <EmptyStar />,
-    <EmptyStar />,
-    <EmptyStar />,
-    <EmptyStar />,
-    <EmptyStar />,
-  ]);
+export default function Rating({ rating }: { rating: number }) {
+  const [stars, setStars] = useState([] as JSX.Element[]);
 
-  function createStarRating(summary: string) {
-    const str = summary.toLowerCase();
-    if (str.includes('great answer')) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      setStars([<FilledStar />, <FilledStar />, <FilledStar />, <FilledStar />, <FilledStar />]);
-    } else if (str.includes('good answer')) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      setStars([<FilledStar />, <FilledStar />, <FilledStar />, <EmptyStar />, <EmptyStar />]);
-    } else if (str.includes('needs improvement')) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      setStars([<FilledStar />, <EmptyStar />, <EmptyStar />, <EmptyStar />, <EmptyStar />]);
+  function createStarRating(starRating: number) {
+    switch (starRating) {
+      case 5:
+        setStars([<FilledStar />, <FilledStar />, <FilledStar />, <FilledStar />, <FilledStar />]);
+        break;
+      case 4:
+        setStars([<FilledStar />, <FilledStar />, <FilledStar />, <FilledStar />]);
+        break;
+      case 3:
+        setStars([<FilledStar />, <FilledStar />, <FilledStar />]);
+        break;
+      case 2:
+        setStars([<FilledStar />, <FilledStar />]);
+        break;
+      case 1:
+        setStars([<FilledStar />]);
+        break;
+      default:
+        logWarn(`Encountered weird rating value: ${starRating}`);
+        break;
     }
   }
 
   useEffect(() => {
-    createStarRating(analysisSummary);
-    // eslint-disable-next-line no-plusplus
+    createStarRating(rating);
   }, []);
 
   return <Group gap="0">{stars.map((x) => x)}</Group>;

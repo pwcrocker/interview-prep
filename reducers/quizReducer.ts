@@ -41,12 +41,12 @@ function gradeQuiz(quiz: Quiz, gradedQuiz: GradedQuiz) {
   const updatedQuesArr = [...updatedQuiz.questions];
 
   gradedQuiz.gradedItems.forEach((item) => {
-    const { questionId, summary, detailed } = item;
+    const { questionId, rating, explanation } = item;
     // Instantly get index for insertion
     const questionIdx = map[questionId];
     const updatedQuestion: Question = {
       ...updatedQuesArr[questionIdx],
-      analysis: { summary, detailed },
+      analysis: { rating, explanation },
     };
     updatedQuesArr[questionIdx] = updatedQuestion;
   });
@@ -69,12 +69,12 @@ function answerSingleQuestion(quiz: Quiz, questionId: string, userAnswer: string
   return updatedQuiz;
 }
 
-function addSingleAnalysis(quiz: Quiz, { questionId, summary, detailed }: RetryAnalysis) {
+function addSingleAnalysis(quiz: Quiz, { questionId, rating, explanation }: RetryAnalysis) {
   const updatedQuiz = { ...quiz };
   const updatedQuesArr = [...updatedQuiz.questions];
   const questionIdx = updatedQuesArr.findIndex((ques) => ques.id === questionId);
   const updatedQuestion = { ...updatedQuesArr[questionIdx] };
-  updatedQuestion.analysis = { summary, detailed };
+  updatedQuestion.analysis = { rating, explanation };
   updatedQuesArr[questionIdx] = updatedQuestion;
   updatedQuiz.questions = updatedQuesArr;
 

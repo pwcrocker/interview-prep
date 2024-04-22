@@ -30,7 +30,7 @@ export default function UserDrawer() {
             {user ? (
               <>
                 <Text fw={700} mb="1rem">
-                  Credits: {user.credits_remaining as number}
+                  Credits: {(user.credits_remaining as number) || 0}
                 </Text>
                 <UnstyledButton className={classes.control} component="a" href="/api/auth/logout">
                   Log Out

@@ -1,14 +1,14 @@
 import { Accordion, Group, Stack, Text } from '@mantine/core';
 import { Question } from '@/types/quiz';
-import SummaryLabel from './SummaryLabel';
+import RatingLabel from './RatingLabel';
 
 interface QuestionLabelProps {
   topic: string;
   question: string;
-  summary: string | undefined;
+  rating: number;
 }
 
-function QuestionLabel({ topic, question, summary }: QuestionLabelProps) {
+function QuestionLabel({ topic, question, rating }: QuestionLabelProps) {
   return (
     <Group wrap="nowrap">
       <div>
@@ -16,7 +16,7 @@ function QuestionLabel({ topic, question, summary }: QuestionLabelProps) {
           {topic}
         </Text>
         <Text fs="italic">{question}</Text>
-        {summary && <SummaryLabel summary={summary} />}
+        {rating && <RatingLabel rating={rating} />}
       </div>
     </Group>
   );
@@ -28,7 +28,7 @@ function QuestionControl({ question }: { question: Question }) {
       <QuestionLabel
         topic={question.attributes.topic}
         question={question.question}
-        summary={question.analysis?.summary}
+        rating={question.analysis?.rating || 0}
       />
     </Accordion.Control>
   );
@@ -42,12 +42,12 @@ function QuestionPanel({ question }: { question: Question }) {
           User answer:
         </Text>
         <Text size="sm">{question.userAnswer}</Text>
-        {question.analysis?.detailed && (
+        {question.analysis?.explanation && (
           <>
             <Text size="sm" td="underline" fw={700}>
               Analysis:
             </Text>
-            <Text size="sm">{question.analysis?.detailed}</Text>
+            <Text size="sm">{question.analysis?.explanation}</Text>
           </>
         )}
       </Stack>

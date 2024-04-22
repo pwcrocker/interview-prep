@@ -2,6 +2,7 @@ import { ActionIcon, Button, Group } from '@mantine/core';
 import { UserProfile } from '@auth0/nextjs-auth0/client';
 import { ColorSchemeToggle } from '../ColorSchemeToggle/ColorSchemeToggle';
 import UserDrawer from '../Layout/UserDrawer';
+import CreditButton from './CreditButton';
 
 interface DesktopActionButtonProps {
   user: UserProfile | undefined;
@@ -11,6 +12,7 @@ interface DesktopActionButtonProps {
 export default function DesktopActionButtons({ user, isLoading }: DesktopActionButtonProps) {
   return (
     <Group wrap="nowrap">
+      {!isLoading && user && <CreditButton numOfCredits={user.credits_remaining as number} />}
       <ColorSchemeToggle />
       {isLoading && <ActionIcon loading={isLoading} variant="default" size={32} />}
       {!isLoading && user && <UserDrawer />}

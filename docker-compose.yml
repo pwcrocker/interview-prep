@@ -1,0 +1,20 @@
+services:
+  postgres:
+    container_name: ${PREP_POSTGRES_CONTAINER}
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: ${PREP_POSTGRES_PG_PASSWORD}
+      PG_DATA: /var/lib/postgresql/data
+      POSTGRES_WRITE_USER: ${PREP_POSTGRES_WRITE_USER}
+      POSTGRES_WRITE_PASSWORD: ${PREP_POSTGRES_WRITE_PASSWORD}
+      POSTGRES_APP_DB: ${PREP_POSTGRES_DB}
+    ports:
+      - ${PREP_POSTGRES_PORT}:5432
+    volumes:
+      - postgres:/var/lib/postgresql/data
+      - ./scripts/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+      - ./sql/create_schema.sql:/create_schema.sql
+      - ./sql/insert_mock_data.sql:/insert_mock_data.sql
+
+volumes:
+  postgres:

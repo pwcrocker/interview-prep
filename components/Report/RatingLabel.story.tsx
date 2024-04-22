@@ -1,28 +1,28 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import SummaryLabel from './SummaryLabel';
+import RatingLabel from './RatingLabel';
 
 //👇 This default export determines where your story goes in the story list
-const meta: Meta<typeof SummaryLabel> = {
-  component: SummaryLabel,
+const meta: Meta<typeof RatingLabel> = {
+  component: RatingLabel,
 };
 
 export default meta;
-type Story = StoryObj<typeof SummaryLabel>;
+type Story = StoryObj<typeof RatingLabel>;
 
 export const NeedsImprovement: Story = {
   args: {
-    summary: 'Needs Improvement',
+    rating: 1,
   },
 };
 
 export const GoodAnswer: Story = {
   args: {
-    summary: 'Good Answer',
+    rating: 3,
   },
 };
 
 export const GreatAnswer: Story = {
   args: {
-    summary: 'Great Answer',
+    rating: 5,
   },
 };

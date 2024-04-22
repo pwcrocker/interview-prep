@@ -1,8 +1,8 @@
 import { Profession } from './profession';
 
 export interface QuestionAnalysis {
-  summary: string;
-  detailed: string;
+  rating: number;
+  explanation: string;
 }
 
 interface QuestionAttributes {
