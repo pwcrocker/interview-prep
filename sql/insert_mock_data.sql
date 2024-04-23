@@ -1,5 +1,7 @@
 \c :db_name :db_user
 
+-- load a user and a quiz w a couple of ques
+
 BEGIN;
 
 INSERT INTO _users(sub, email)
@@ -33,6 +35,8 @@ VALUES (
 COMMIT;
 
 BEGIN;
+
+-- load second quiz w a couple of ques
 
 INSERT INTO quizzes(user_id, subject_area)
 VALUES (

@@ -1,5 +1,7 @@
 'use server';
 
+import { log } from 'console';
+import sql from './db';
 import { logJson } from './logger';
 
 export async function getUser(id: string) {
@@ -100,4 +102,10 @@ export async function loseCredits(userId: string) {
   const result = await res.json();
 
   logJson('Found this: ', result);
+}
+
+export async function buyCreditsDb(userSub: string) {
+  const user = await sql`SELECT * FROM _users WHERE sub = ${userSub}`;
+  logJson('user ===> ', user);
+  return user;
 }

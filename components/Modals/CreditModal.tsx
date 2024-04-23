@@ -1,7 +1,7 @@
 import { useUser } from '@auth0/nextjs-auth0/client';
 import { Button, Modal } from '@mantine/core';
-import { log } from '@/lib/logger';
-import { buyCredits, loseCredits } from '@/lib/credits';
+import { log, logJson } from '@/lib/logger';
+import { buyCredits, buyCreditsDb, loseCredits } from '@/lib/credits';
 import { touchSession } from '@auth0/nextjs-auth0';
 
 export default function CreditModal({ opened, close }: { opened: boolean; close: () => void }) {
@@ -19,7 +19,8 @@ export default function CreditModal({ opened, close }: { opened: boolean; close:
     // logJson('Response: ', res);
 
     if (!isLoading && user?.sub) {
-      await buyCredits(user.sub);
+      const result = await buyCreditsDb(user.sub);
+      logJson('Front result: ', result);
     }
   }
 
