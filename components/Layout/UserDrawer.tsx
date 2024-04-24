@@ -5,10 +5,12 @@ import { useDisclosure } from '@mantine/hooks';
 import { IconUser } from '@tabler/icons-react';
 import { useUser } from '@auth0/nextjs-auth0/client';
 import classes from './UserDrawer.module.css';
+import { useTokens } from '@/store/TokensContextProvider';
 
 export default function UserDrawer() {
   const [opened, { open, close }] = useDisclosure(false);
-  const { user } = useUser();
+  const { isLoading } = useUser();
+  const { tokens } = useTokens();
 
   return (
     <>
@@ -27,10 +29,10 @@ export default function UserDrawer() {
             <Drawer.CloseButton />
           </Drawer.Header>
           <Drawer.Body>
-            {user ? (
+            {!isLoading ? (
               <>
                 <Text fw={700} mb="1rem">
-                  Credits: {(user.credits_remaining as number) || 0}
+                  Tokens: {tokens}
                 </Text>
                 <UnstyledButton className={classes.control} component="a" href="/api/auth/logout">
                   Log Out

@@ -40,11 +40,11 @@ export function getGraderPrompt() {
     'The rating portion of the response should be a brief assessment on the quality of the answer, coming in the form of a numerical rating from 1 to 5, with 5 being the best and 1 the worst. ';
   const greatAnswerDetailed = 'For answers rated 5, no explanation needed.';
   const otherAnswersDetailed =
-    'For answers rated less than 5, provide a brief explanation of the ideal answer.';
+    'For answers rated less than 5, provide an explanation of the ideal answer.';
   const irrelevantAnswers =
-    'For irrelevant answers, give a rating of 1 along with the normal ideal answer explanation. ';
+    'For bad answers, give a rating of 1 along with an ideal answer explanation. ';
   const finalResponseQualifiers =
-    'Do not repeat the question or user answer in the detailed assessment. Do not include characters that would break JSON.parse() like backticks. ';
+    'Do not repeat the question or user answer in the detailed assessment. Do not include characters that would break JSON.parse() like backticks. Do not comment on quality of the user answer in your detailed explanation. ';
 
   // resembles QuestionAnalysis
   const schema = '{ gradedItems: [{ questionId: string, rating: 1-5, explanation: string }]} ';

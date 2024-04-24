@@ -1,18 +1,34 @@
+'use client';
+
+import { useEffect } from 'react';
+import { useUser } from '@auth0/nextjs-auth0/client';
 import { ActionIcon, Button, Group } from '@mantine/core';
-import { UserProfile } from '@auth0/nextjs-auth0/client';
 import { ColorSchemeToggle } from '../ColorSchemeToggle/ColorSchemeToggle';
 import UserDrawer from '../Layout/UserDrawer';
 import CreditButton from './CreditButton';
+import { getTokensForUser } from '@/lib/tokens';
+import { log } from '@/lib/logger';
+import { useTokens } from '@/store/TokensContextProvider';
 
-interface DesktopActionButtonProps {
-  user: UserProfile | undefined;
-  isLoading: boolean;
-}
+export default function DesktopActionButtons() {
+  const { user, isLoading } = useUser();
+  const { updateTokens } = useTokens();
 
-export default function DesktopActionButtons({ user, isLoading }: DesktopActionButtonProps) {
+  useEffect(() => {
+    async function getAndSetTokens() {
+      // fetch user's tokens and update tokens
+      const numOfTokens = await getTokensForUser(user!.sub!);
+      log(`what is this value: ${numOfTokens}`);
+      updateTokens(numOfTokens);
+    }
+    if (!isLoading && user?.sub) {
+      getAndSetTokens();
+    }
+  }, [isLoading]);
+
   return (
     <Group wrap="nowrap">
-      {!isLoading && user && <CreditButton numOfCredits={user.credits_remaining as number} />}
+      {user && <CreditButton />}
       <ColorSchemeToggle />
       {isLoading && <ActionIcon loading={isLoading} variant="default" size={32} />}
       {!isLoading && user && <UserDrawer />}

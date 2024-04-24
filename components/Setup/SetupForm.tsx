@@ -7,15 +7,18 @@ import { useMediaQuery } from '@mantine/hooks';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@auth0/nextjs-auth0/client';
 import styles from './StepForm.module.css';
-import { fetchQuiz } from '@/lib/prompt';
+import { fetchQuiz, getQuizCost } from '@/lib/prompt';
 import { EXPERIENCE } from '@/types/experience';
 import { QuizAttributes } from '@/types/quiz';
 import { QuizActionType, QuizContext } from '@/store/QuizContextProvider';
 import LoadingText from '../Layout/LoadingText';
 import SetupPayload from './SetupPayload';
-import { SetupForm } from '@/types/setupForm';
+import { SetupFormValues } from '@/types/setupForm';
 import OverviewSection from './OverviewSection';
 import QuizAttributeSection from './QuizAttributeSection';
+import { logErr } from '@/lib/logger';
+import { useTokens } from '@/store/TokensContextProvider';
+import PromptSubmitButton from './PromptSubmitButton';
 
 const FOCUS_AREA_GROUPS = ['Include/Exclude', 'Exclusive'];
 
@@ -31,14 +34,16 @@ function StyledStepper(props: StepperProps) {
 export default function SetupForm() {
   const { quiz, dispatch } = useContext(QuizContext);
   const router = useRouter();
-  const { isLoading } = useUser();
+  const { user, isLoading } = useUser();
+  const { tokens, updateTokens } = useTokens();
 
   const [active, setActive] = useState(0);
+  const [hasEnough, setHasEnough] = useState(false);
   const [focusAreaGroup, setFocusAreaGroup] = useState<string | null>();
   const [isBuilding, setIsBuilding] = useState(false);
-  const [error, setError] = useState<Error>();
+  const [quizCost, setQuizCost] = useState(0);
 
-  const form = useForm<SetupForm>({
+  const form = useForm<SetupFormValues>({
     initialValues: {
       job: '',
       experience: EXPERIENCE.INTERMEDIATE,
@@ -59,19 +64,34 @@ export default function SetupForm() {
     },
   });
 
-  // have to do this to trigger error.tsx
-  // idk why
   useEffect(() => {
-    if (error) {
-      throw error;
+    async function setCost() {
+      const cost = await getQuizCost();
+      setQuizCost(cost);
     }
-  }, [error]);
+
+    setCost();
+  }, []);
+
+  useEffect(() => {
+    async function checkTokens() {
+      setHasEnough(quizCost <= tokens);
+    }
+
+    if (!isLoading) {
+      checkTokens();
+    }
+  }, [tokens]);
 
   useEffect(() => {
     if (quiz.questions?.length > 0) {
       router.push('/prep');
     }
   }, [quiz]);
+
+  const prevStep = () => {
+    setActive((current) => (current > 0 ? current - 1 : current));
+  };
 
   const nextStep = () =>
     setActive((current) => {
@@ -120,27 +140,31 @@ export default function SetupForm() {
 
   const sendPrompt = async () => {
     nextStep();
-    cleanUpFocusAreas(focusAreaGroup);
     setIsBuilding(true);
+    cleanUpFocusAreas(focusAreaGroup);
     const attr = buildQuizAttrObj();
+
     try {
-      const prelimQuiz = await fetchQuiz(attr);
+      if (!user?.sub) {
+        throw new Error('User information not available for quiz creation');
+      }
+      const result = await fetchQuiz(user.sub, attr);
+      if (!result?.quiz) {
+        throw new Error("Couldn't create quiz");
+      }
+      updateTokens(result.tokens);
       dispatch({
         type: QuizActionType.MAKE_QUIZ,
         payload: {
-          quiz: prelimQuiz,
+          quiz: result.quiz,
           attributes: attr,
         },
       });
-    } catch (err: any) {
-      // doing this to trigger redirect to error.tsx
-      // idk why i have to do this
-      setError(err);
+    } catch (err) {
+      setIsBuilding(false);
+      prevStep();
+      logErr('Bad tings', err);
     }
-  };
-
-  const prevStep = () => {
-    setActive((current) => (current > 0 ? current - 1 : current));
   };
 
   return (
@@ -189,14 +213,12 @@ export default function SetupForm() {
               Next step
             </Button>
           ) : (
-            <Button
-              color="burntorange.0"
-              onClick={sendPrompt}
+            <PromptSubmitButton
+              clickHandler={sendPrompt}
               loading={isLoading}
-              disabled={isLoading}
-            >
-              Yes, Let&apos;s Begin
-            </Button>
+              disabled={!hasEnough}
+              tooltip={`You need at least ${quizCost} tokens`}
+            />
           )}
         </Group>
       )}

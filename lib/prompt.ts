@@ -7,19 +7,37 @@ import { getTesterPrompt, getGraderPrompt } from '@/config/promptConfig';
 import { QuizResponse } from '@/types/createQuiz';
 import { QuizAttributes, SimpleQuestion } from '@/types/quiz';
 import { GradedQuiz } from '@/types/gradeQuiz';
-import { log, logErr, logJson } from './logger';
+import { log, logErr, logJson, logWarn } from './logger';
+import { checkUserTokens, spendTokensReturningUpdatedCount } from './tokens';
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.PREP_OPENAI_API_KEY,
 });
 
 const AI_MODEL = 'gpt-3.5-turbo';
 
-export async function fetchQuiz(quizAttr: QuizAttributes) {
+const QUIZ_CREATE_COST = parseInt(process.env.PREP_QUIZ_COST!, 10);
+
+export async function getQuizCost() {
+  log(`${QUIZ_CREATE_COST}`);
+  return QUIZ_CREATE_COST;
+}
+
+export async function hasEnoughTokens(userSub: string) {
+  return checkUserTokens(userSub, QUIZ_CREATE_COST);
+}
+
+export async function fetchQuiz(userSub: string, quizAttr: QuizAttributes) {
+  const enough = await hasEnoughTokens(userSub);
+  if (!enough) {
+    logWarn('User does not have enough tokens for request');
+    return null;
+  }
   const userPrompt = JSON.stringify(quizAttr.profession);
   const testerPrompt = getTesterPrompt(quizAttr);
 
   let responseContent;
+  let numOfTokens;
   try {
     const response = await openai.chat.completions.create({
       messages: [
@@ -34,6 +52,7 @@ export async function fetchQuiz(quizAttr: QuizAttributes) {
       ],
       model: AI_MODEL,
     });
+    numOfTokens = await spendTokensReturningUpdatedCount(userSub, QUIZ_CREATE_COST);
     logJson('Tester system prompt: ', testerPrompt);
     logJson('Tester user prompt: ', userPrompt);
 
@@ -52,7 +71,12 @@ export async function fetchQuiz(quizAttr: QuizAttributes) {
     throw e;
   }
   // TODO need schema validation ??
-  return JSON.parse(responseContent) as QuizResponse;
+  const result = {
+    tokens: numOfTokens,
+    quiz: JSON.parse(responseContent) as QuizResponse,
+  };
+
+  return result;
 }
 
 export async function gradeQuiz(finalAnswers: SimpleQuestion[]) {

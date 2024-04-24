@@ -6,6 +6,7 @@ import { MantineProvider, ColorSchemeScript } from '@mantine/core';
 import { theme } from '../theme';
 import QuizContextProvider from '@/store/QuizContextProvider';
 import AppWrapper from '@/components/Layout/AppWrapper';
+import { TokensProvider } from '@/store/TokensContextProvider';
 
 export const metadata = {
   title: 'prepforwork.ai',
@@ -26,9 +27,11 @@ export default function RootLayout({ children }: { children: any }) {
       <UserProvider>
         <body>
           <MantineProvider theme={theme}>
-            <AppWrapper>
-              <QuizContextProvider>{children}</QuizContextProvider>
-            </AppWrapper>
+            <TokensProvider>
+              <AppWrapper>
+                <QuizContextProvider>{children}</QuizContextProvider>
+              </AppWrapper>
+            </TokensProvider>
           </MantineProvider>
         </body>
       </UserProvider>

@@ -21,7 +21,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE _users (
   user_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  sub TEXT UNIQUE NOT NULL,
+  user_sub TEXT UNIQUE NOT NULL,
   username TEXT,
   email TEXT UNIQUE NOT NULL,
   tokens SMALLINT DEFAULT 0,
@@ -42,7 +42,7 @@ CREATE TABLE questions (
 
 CREATE TABLE quizzes (
   quiz_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID REFERENCES _users(user_id),
+  user_sub UUID REFERENCES _users(user_sub),
   subject_area TEXT NOT NULL,
   difficulty_modifier TEXT,
   included_topics TEXT,
@@ -60,7 +60,7 @@ CREATE TABLE quiz_questions (
 
 CREATE TABLE user_answers (
   answer_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID REFERENCES _users(user_id),
+  user_sub UUID REFERENCES _users(user_sub),
   question_id UUID REFERENCES questions(question_id),
   user_answer TEXT NOT NULL,
   ai_summary_analysis SMALLINT,
