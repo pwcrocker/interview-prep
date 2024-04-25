@@ -1,13 +1,13 @@
 import { Select, TextInput } from '@mantine/core';
 import { GetInputPropsReturnType } from '@mantine/form/lib/types';
-import { EXPERIENCE } from '@/types/experience';
+import { DIFFICULTY_LEVELS, PROFESSION_BASED_VALUES } from '@/types/difficulty';
 
 export default function OverviewSection({
-  jobInputProps,
-  expInputProps,
+  subjectAreaInputProps,
+  difficultyModifierInputProps,
 }: {
-  jobInputProps: GetInputPropsReturnType;
-  expInputProps: GetInputPropsReturnType;
+  subjectAreaInputProps: GetInputPropsReturnType;
+  difficultyModifierInputProps: GetInputPropsReturnType;
 }) {
   return (
     <>
@@ -15,14 +15,14 @@ export default function OverviewSection({
         label="What profession are you applying for?"
         placeholder="i.e. Software Engineer"
         maxLength={30}
-        {...jobInputProps}
+        {...subjectAreaInputProps}
       />
       <Select
         label="What experience level?"
-        data={[...Object.values(EXPERIENCE)]}
-        defaultValue={EXPERIENCE.INTERMEDIATE}
+        data={[...Object.values(PROFESSION_BASED_VALUES)]}
+        defaultValue={PROFESSION_BASED_VALUES[DIFFICULTY_LEVELS.INTERMEDIATE]}
         allowDeselect={false}
-        {...expInputProps}
+        {...difficultyModifierInputProps}
       />
     </>
   );

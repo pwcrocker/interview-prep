@@ -4,12 +4,12 @@
 
 BEGIN;
 
-INSERT INTO _users(sub, email)
+INSERT INTO _users(user_sub, email)
 VALUES ('auth0|mockuser1', 'mockuser1@mail.com');
 
-INSERT INTO quizzes(user_id, subject_area)
+INSERT INTO quizzes(user_sub, subject_area)
 VALUES (
-  (SELECT user_id FROM _users WHERE sub = 'auth0|mockuser1'),
+  'auth0|mockuser1',
   'Mock subject area 1'
 );
 
@@ -38,9 +38,9 @@ BEGIN;
 
 -- load second quiz w a couple of ques
 
-INSERT INTO quizzes(user_id, subject_area)
+INSERT INTO quizzes(user_sub, subject_area)
 VALUES (
-  (SELECT user_id FROM _users WHERE sub = 'auth0|mockuser1'),
+  'auth0|mockuser1',
   'Mock subject area 2'
 );
 

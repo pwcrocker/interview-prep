@@ -12,6 +12,6 @@ export function logWarn(msg: string) {
   console.warn(msg);
 }
 
-export function logErr(msg: string, err: any) {
+export function logErr(msg: string, err?: any) {
   console.error(msg, err);
 }

@@ -8,17 +8,16 @@ import { useRouter } from 'next/navigation';
 import { useUser } from '@auth0/nextjs-auth0/client';
 import styles from './StepForm.module.css';
 import { fetchQuiz, getQuizCost } from '@/lib/prompt';
-import { EXPERIENCE } from '@/types/experience';
-import { QuizAttributes } from '@/types/quiz';
+import { ProposedQuizAttributes } from '@/types/quiz';
 import { QuizActionType, QuizContext } from '@/store/QuizContextProvider';
 import LoadingText from '../Layout/LoadingText';
 import SetupPayload from './SetupPayload';
-import { SetupFormValues } from '@/types/setupForm';
 import OverviewSection from './OverviewSection';
 import QuizAttributeSection from './QuizAttributeSection';
 import { logErr } from '@/lib/logger';
 import { useTokens } from '@/store/TokensContextProvider';
 import PromptSubmitButton from './PromptSubmitButton';
+import { DIFFICULTY_LEVELS, PROFESSION_BASED_VALUES } from '@/types/difficulty';
 
 const FOCUS_AREA_GROUPS = ['Include/Exclude', 'Exclusive'];
 
@@ -43,20 +42,23 @@ export default function SetupForm() {
   const [isBuilding, setIsBuilding] = useState(false);
   const [quizCost, setQuizCost] = useState(0);
 
-  const form = useForm<SetupFormValues>({
+  const form = useForm<ProposedQuizAttributes>({
     initialValues: {
-      job: '',
-      experience: EXPERIENCE.INTERMEDIATE,
-      topics: 3,
-      quesPerTopic: 1,
-      includedAreas: [],
-      excludedAreas: [],
-      exclusiveAreas: [],
+      subject_area: '',
+      difficulty_modifier: PROFESSION_BASED_VALUES[DIFFICULTY_LEVELS.INTERMEDIATE],
+      num_topics: 3,
+      ques_per_topic: 1,
+      included_topics_arr: [],
+      excluded_topics_arr: [],
+      exclusive_topics_arr: [],
     },
     validate: (values) => {
       if (active === 0) {
         return {
-          job: values.job.trim().length < 4 ? 'Job must include at least 4 characters' : null,
+          job:
+            values.subject_area.trim().length < 4
+              ? 'Subject Area must include at least 4 characters'
+              : null,
         };
       }
 
@@ -84,7 +86,9 @@ export default function SetupForm() {
   }, [tokens]);
 
   useEffect(() => {
-    if (quiz.questions?.length > 0) {
+    // if (myemptyarr) !== if (!!myemptyarr)
+    // eslint-disable-next-line no-extra-boolean-cast
+    if (quiz.quiz_questions?.length > 0) {
       router.push('/prep');
     }
   }, [quiz]);
@@ -101,64 +105,45 @@ export default function SetupForm() {
       return current < 3 ? current + 1 : current;
     });
 
-  const cleanUpFocusAreas = (curFocusGroup?: string | null) => {
+  const cleanUpTopicArrays = (curFocusGroup?: string | null) => {
     const areaGroup = curFocusGroup;
     if (areaGroup) {
       if (areaGroup === FOCUS_AREA_GROUPS[0]) {
-        form.values.exclusiveAreas = [];
+        form.values.exclusive_topics_arr = [];
       } else {
-        form.values.includedAreas = [];
-        form.values.excludedAreas = [];
+        form.values.included_topics_arr = [];
+        form.values.excluded_topics_arr = [];
       }
     } else {
-      form.values.includedAreas = [];
-      form.values.excludedAreas = [];
-      form.values.exclusiveAreas = [];
+      form.values.included_topics_arr = [];
+      form.values.excluded_topics_arr = [];
+      form.values.exclusive_topics_arr = [];
     }
   };
 
   const handleFocusAreaTypeChange = (value: string | null) => {
     setFocusAreaGroup(value);
-    cleanUpFocusAreas(value);
-  };
-
-  const buildQuizAttrObj = (): QuizAttributes => {
-    const { job, experience, topics, quesPerTopic, includedAreas, excludedAreas, exclusiveAreas } =
-      form.values;
-    return {
-      profession: {
-        job,
-        experience,
-      },
-      topics,
-      quesPerTopic,
-      includedAreas,
-      excludedAreas,
-      exclusiveAreas,
-    };
+    cleanUpTopicArrays(value);
   };
 
   const sendPrompt = async () => {
     nextStep();
     setIsBuilding(true);
-    cleanUpFocusAreas(focusAreaGroup);
-    const attr = buildQuizAttrObj();
+    cleanUpTopicArrays(focusAreaGroup);
 
     try {
       if (!user?.sub) {
         throw new Error('User information not available for quiz creation');
       }
-      const result = await fetchQuiz(user.sub, attr);
+      const result = await fetchQuiz(user.sub, form.values);
       if (!result?.quiz) {
+        // TODO handle refund flow?
         throw new Error("Couldn't create quiz");
       }
       updateTokens(result.tokens);
       dispatch({
         type: QuizActionType.MAKE_QUIZ,
-        payload: {
-          quiz: result.quiz,
-          attributes: attr,
-        },
+        payload: result.quiz,
       });
     } catch (err) {
       setIsBuilding(false);
@@ -170,16 +155,19 @@ export default function SetupForm() {
   return (
     <div className={styles.container}>
       <StyledStepper active={active}>
-        <Stepper.Step label="Job Overview" description="What are you applying for?">
+        <Stepper.Step
+          label="Subject Area"
+          description="General subject for questions i.e. job applying for"
+        >
           <OverviewSection
-            jobInputProps={form.getInputProps('job')}
-            expInputProps={form.getInputProps('experience')}
+            subjectAreaInputProps={form.getInputProps('subject_area')}
+            difficultyModifierInputProps={form.getInputProps('difficulty_modifier')}
           />
         </Stepper.Step>
         <Stepper.Step label="Quiz Attributes" description="Define characteristics of quiz">
           <QuizAttributeSection
-            topicsProps={form.getInputProps('topics')}
-            quesProps={form.getInputProps('quesPerTopic')}
+            topicsProps={form.getInputProps('num_topics')}
+            quesProps={form.getInputProps('ques_per_topic')}
             focusAreaProps={{
               data: FOCUS_AREA_GROUPS,
               value: focusAreaGroup,
@@ -189,9 +177,9 @@ export default function SetupForm() {
               (focusAreaGroup && focusAreaGroup === FOCUS_AREA_GROUPS[0]) as boolean
             }
             showExclusive={(focusAreaGroup && focusAreaGroup === FOCUS_AREA_GROUPS[1]) as boolean}
-            includeProps={form.getInputProps('includedAreas')}
-            excludeProps={form.getInputProps('excludedAreas')}
-            exclusiveProps={form.getInputProps('exclusiveAreas')}
+            includeProps={form.getInputProps('included_topics_arr')}
+            excludeProps={form.getInputProps('excluded_topics_arr')}
+            exclusiveProps={form.getInputProps('exclusive_topics_arr')}
           />
         </Stepper.Step>
         <Stepper.Step label="Confirmation" description="Confirm and Start">

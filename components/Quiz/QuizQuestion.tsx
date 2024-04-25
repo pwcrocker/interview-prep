@@ -1,11 +1,12 @@
 import { Text, Textarea } from '@mantine/core';
+import { ChangeEvent } from 'react';
 
 interface QuizQuestionProps {
   topic: string;
   question: string;
   answer: string;
   maxLen: number;
-  handleChange: (value: string) => void;
+  handleChange: (event: ChangeEvent<HTMLTextAreaElement>) => void;
 }
 
 export default function QuizQuestion({
@@ -25,7 +26,7 @@ export default function QuizQuestion({
         maxLength={maxLen}
         description={`(${answer.length}/${maxLen} characters)`}
         value={answer}
-        onChange={(e) => handleChange(e.currentTarget.value)}
+        onChange={(e) => handleChange(e)}
       />
     </>
   );

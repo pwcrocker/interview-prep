@@ -1,109 +1,63 @@
-/* eslint-disable no-console */
 import { QuizAction, QuizActionType, initialReducerState } from '@/store/QuizContextProvider';
-import { Question, Quiz } from '@/types/quiz';
-import { PreliminaryQuiz } from '@/types/createQuiz';
-import { logJson } from '@/lib/logger';
-import { RetryAnalysis } from '@/types/questionRetry';
-import { GradedQuiz } from '@/types/gradeQuiz';
+import { FinalizedQuiz, PersistedQuiz, StateQuiz } from '@/types/quiz';
+import { log, logJson } from '@/lib/logger';
+import { EphemeralUserAnswer, PersistedUserAnswer } from '@/types/answer';
 
-function buildQuiz(prelimQuiz: PreliminaryQuiz) {
-  const freshQuiz: Quiz = {
-    questions: [],
-    attributes: prelimQuiz.attributes,
+function answerSingleQuestion(
+  quiz: PersistedQuiz,
+  { questionIdx, answer }: { questionIdx: number; answer: EphemeralUserAnswer }
+) {
+  const newState = {
+    ...quiz,
+    quiz_questions: quiz.quiz_questions.map((curQues, idx) => {
+      if (idx === questionIdx) {
+        return {
+          ...curQues,
+          question_answer: {
+            ...curQues.question_answer,
+            ...answer,
+          },
+        };
+      }
+      return curQues;
+    }),
   };
 
-  prelimQuiz.quiz.quizItems.forEach((quizItem) => {
-    quizItem.questions.forEach((generatedQ) => {
-      const newQ: Question = {
-        id: generatedQ.id,
-        question: generatedQ.question,
-        attributes: { topic: quizItem.topic },
-      };
-      freshQuiz.questions.push(newQ);
-    });
-  });
-
-  logJson('Building fresh quiz: ', freshQuiz);
-  return freshQuiz;
+  logJson('Answering single question: ', newState.quiz_questions[questionIdx]);
+  return newState;
 }
 
-interface IdToIndexMap {
-  [x: string]: number;
+function stitchAnswersIntoQuiz(quiz: FinalizedQuiz, answers: PersistedUserAnswer[]): FinalizedQuiz {
+  const quesIdToAns = new Map<string, PersistedUserAnswer>();
+  answers.forEach((answer) => quesIdToAns.set(answer.question_id, answer));
+  const newState: FinalizedQuiz = {
+    ...quiz,
+    quiz_questions: quiz.quiz_questions.map((curQues) => ({
+      ...curQues,
+      question_answer: {
+        ...curQues.question_answer,
+        ...quesIdToAns.get(curQues.question_id),
+      },
+    })),
+  };
+  log('Stitched answers into final quiz');
+  return newState;
 }
 
-function gradeQuiz(quiz: Quiz, gradedQuiz: GradedQuiz) {
-  // make a Qid -> Qidx map for O(1) lookup when assigning analysis
-  const map: IdToIndexMap = quiz.questions.reduce(
-    (acc, ques, idx) => ({ ...acc, [ques.id]: idx }),
-    {}
-  );
-  const updatedQuiz = { ...quiz };
-  const updatedQuesArr = [...updatedQuiz.questions];
-
-  gradedQuiz.gradedItems.forEach((item) => {
-    const { questionId, rating, explanation } = item;
-    // Instantly get index for insertion
-    const questionIdx = map[questionId];
-    const updatedQuestion: Question = {
-      ...updatedQuesArr[questionIdx],
-      analysis: { rating, explanation },
-    };
-    updatedQuesArr[questionIdx] = updatedQuestion;
-  });
-
-  logJson('Grading quiz: ', updatedQuiz);
-  updatedQuiz.questions = updatedQuesArr;
-  return updatedQuiz;
-}
-
-function answerSingleQuestion(quiz: Quiz, questionId: string, userAnswer: string) {
-  const updatedQuiz = { ...quiz };
-  const updatedQuesArr = [...updatedQuiz.questions];
-  const questionIdx = updatedQuesArr.findIndex((ques) => ques.id === questionId);
-  const updatedQuestion = { ...updatedQuesArr[questionIdx] };
-  updatedQuestion.userAnswer = userAnswer;
-  updatedQuesArr[questionIdx] = updatedQuestion;
-  updatedQuiz.questions = updatedQuesArr;
-
-  logJson('Answering single question: ', updatedQuestion);
-  return updatedQuiz;
-}
-
-function addSingleAnalysis(quiz: Quiz, { questionId, rating, explanation }: RetryAnalysis) {
-  const updatedQuiz = { ...quiz };
-  const updatedQuesArr = [...updatedQuiz.questions];
-  const questionIdx = updatedQuesArr.findIndex((ques) => ques.id === questionId);
-  const updatedQuestion = { ...updatedQuesArr[questionIdx] };
-  updatedQuestion.analysis = { rating, explanation };
-  updatedQuesArr[questionIdx] = updatedQuestion;
-  updatedQuiz.questions = updatedQuesArr;
-
-  logJson('Adding single analysis: ', updatedQuestion);
-  return updatedQuiz;
-}
-
-export default function quizReducer(quiz: Quiz, action: QuizAction) {
+export default function quizReducer(quiz: StateQuiz, action: QuizAction): StateQuiz {
   switch (action.type) {
     case QuizActionType.MAKE_QUIZ:
-      return { ...quiz, ...buildQuiz(action.payload) };
-    case QuizActionType.GRADE_QUIZ:
-      return { ...quiz, ...gradeQuiz(quiz, action.payload) };
+      return { ...action.payload };
     case QuizActionType.ANSWER_SINGLE_QUESTION:
       return {
         ...quiz,
-        ...answerSingleQuestion(
-          quiz,
-          action.payload.questionId,
-          action.payload.userAnswer || 'No answer'
-        ),
+        ...answerSingleQuestion(quiz as PersistedQuiz, action.payload),
       };
-    case QuizActionType.RETRY_SINGLE_ANALYSIS:
+    case QuizActionType.GRADE_QUIZ:
       return {
         ...quiz,
-        ...addSingleAnalysis(quiz, action.payload),
+        ...stitchAnswersIntoQuiz(quiz as FinalizedQuiz, action.payload),
       };
-    case QuizActionType.RETAKE_QUIZ:
-      return { ...quiz, ...action.payload.quiz };
     case QuizActionType.RESET_QUIZ:
       return initialReducerState;
     default:

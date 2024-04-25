@@ -37,12 +37,12 @@ CREATE TABLE _users (
 CREATE TABLE questions (
   question_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   question TEXT NOT NULL,
-  question_topic TEXT
+  question_topic TEXT NOT NULL
 );
 
 CREATE TABLE quizzes (
   quiz_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_sub UUID REFERENCES _users(user_sub),
+  user_sub TEXT REFERENCES _users(user_sub),
   subject_area TEXT NOT NULL,
   difficulty_modifier TEXT,
   included_topics TEXT,
@@ -60,7 +60,7 @@ CREATE TABLE quiz_questions (
 
 CREATE TABLE user_answers (
   answer_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_sub UUID REFERENCES _users(user_sub),
+  user_sub TEXT REFERENCES _users(user_sub),
   question_id UUID REFERENCES questions(question_id),
   user_answer TEXT NOT NULL,
   ai_summary_analysis SMALLINT,
@@ -98,7 +98,7 @@ RETURNS TRIGGER AS $$
 BEGIN
   UPDATE _users
   SET last_quiz_creation = CURRENT_TIMESTAMP
-  WHERE user_id = NEW.user_id;
+  WHERE user_sub = NEW.user_sub;
 
   RETURN NEW;
 END;
@@ -116,7 +116,7 @@ RETURNS TRIGGER AS $$
 BEGIN
   UPDATE _users
   SET last_quiz_grading = CURRENT_TIMESTAMP
-  WHERE user_id = NEW.user_id;
+  WHERE user_sub = NEW.user_sub;
 
   RETURN NEW;
 END;
@@ -134,17 +134,21 @@ EXECUTE FUNCTION fn_update_last_quiz_grading();
 
 
 -----------------------------------------
---------- BEGIN VIEWS SECTION -----------
+---------- BEGIN TVF SECTION ------------
 -----------------------------------------
 
--- all quizzes and questions joined
+-- all questions returned for a given quiz id
 
-CREATE VIEW view_all_quiz_questions AS
-SELECT qz.quiz_id, qz.subject_area, q.question_id, q.question, q.question_topic
-FROM questions q
-JOIN quiz_questions qq ON q.question_id = qq.question_id
-JOIN quizzes qz ON qq.quiz_id = qz.quiz_id;
+-- CREATE FUNCTION get_questions_for_quiz_id(p_quiz_id UUID)
+-- RETURNS TABLE (question_id UUID, question TEXT, question_topic TEXT) AS
+-- $$
+-- SELECT ques.question, ques.question_topic
+-- FROM questions ques
+-- JOIN quiz_questions qq ON ques.question_id = qq.question_id
+-- WHERE qq.quiz_id = p_quiz_id;
+-- $$
+-- LANGUAGE sql VOLATILE;
 
 -----------------------------------------
----------- END VIEWS SECTION ------------
+----------- END TVF SECTION -------------
 -----------------------------------------

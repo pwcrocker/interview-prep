@@ -1,8 +1,8 @@
-import { SetupFormValues } from '@/types/setupForm';
 import PayloadHeader from './PayloadHeader';
 import PayloadBody from './PayloadBody';
+import { ProposedQuizAttributes } from '@/types/quiz';
 
-export default function SetupPayload({ values }: { values: SetupFormValues }) {
+export default function SetupPayload({ values }: { values: ProposedQuizAttributes }) {
   return (
     <>
       <PayloadHeader />

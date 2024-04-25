@@ -2,64 +2,49 @@
 
 import { createContext, useReducer } from 'react';
 import quizReducer from '@/reducers/quizReducer';
-import { Quiz } from '@/types/quiz';
-import { PreliminaryQuiz } from '@/types/createQuiz';
-import { EXPERIENCE } from '@/types/experience';
-import { GradedQuiz } from '@/types/gradeQuiz';
-import { RetryAnalysis } from '@/types/questionRetry';
+import { PersistedQuiz, StateQuiz } from '@/types/quiz';
+import { DEFAULT_VALUES, DIFFICULTY_LEVELS } from '@/types/difficulty';
+import { EphemeralUserAnswer, PersistedUserAnswer } from '@/types/answer';
 
 export enum QuizActionType {
   MAKE_QUIZ = 'make-quiz',
+  ANSWER_SINGLE_QUESTION = 'answer-question',
   GRADE_QUIZ = 'grade-quiz',
-  ANSWER_SINGLE_QUESTION = 'answer-single-question',
-  RETRY_SINGLE_ANALYSIS = 'retry-single-analysis',
-  RETAKE_QUIZ = 'retake-quiz',
   RESET_QUIZ = 'reset-quiz',
 }
 
 export type QuizAction =
   | {
       type: QuizActionType.MAKE_QUIZ;
-      payload: PreliminaryQuiz;
-    }
-  | {
-      type: QuizActionType.GRADE_QUIZ;
-      payload: GradedQuiz;
+      payload: PersistedQuiz;
     }
   | {
       type: QuizActionType.ANSWER_SINGLE_QUESTION;
-      payload: { questionId: string; userAnswer: string };
+      payload: { questionIdx: number; answer: EphemeralUserAnswer };
     }
   | {
-      type: QuizActionType.RETRY_SINGLE_ANALYSIS;
-      payload: RetryAnalysis;
-    }
-  | {
-      type: QuizActionType.RETAKE_QUIZ;
-      payload: { quiz: Quiz };
+      type: QuizActionType.GRADE_QUIZ;
+      payload: PersistedUserAnswer[];
     }
   | {
       type: QuizActionType.RESET_QUIZ;
     };
-
+// quiz should be overwritten with PersistedQuiz
 export interface QuizContextType {
-  quiz: Quiz;
+  quiz: StateQuiz;
   dispatch: React.Dispatch<QuizAction>;
 }
 
-export const initialReducerState: Quiz = {
-  questions: [],
-  attributes: {
-    profession: {
-      job: '',
-      experience: EXPERIENCE.INTERMEDIATE,
-    },
-    topics: 3,
-    quesPerTopic: 1,
-    includedAreas: [],
-    excludedAreas: [],
-    exclusiveAreas: [],
-  },
+export const initialReducerState: StateQuiz = {
+  quiz_id: '',
+  user_sub: '',
+  subject_area: '',
+  difficulty_modifier: DEFAULT_VALUES[DIFFICULTY_LEVELS.INTERMEDIATE],
+  included_topics: '',
+  excluded_topics: '',
+  exclusive_topics: '',
+  is_graded: false,
+  quiz_questions: [],
 };
 
 export const QuizContext = createContext<QuizContextType>({

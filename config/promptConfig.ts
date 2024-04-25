@@ -1,28 +1,26 @@
-import { QuizAttributes } from '@/types/quiz';
+import { ProposedQuizAttributes } from '@/types/quiz';
 
 export function getTesterPrompt({
-  topics,
-  quesPerTopic,
-  includedAreas,
-  excludedAreas,
-  exclusiveAreas,
-}: QuizAttributes) {
-  const roleDefinition = `Your job is to generate ${topics} topics based on a profession and experience level. These topics should focus on the technical skills required for the profession. Do not include characters that would break JSON.parse() like backticks. Do not mention the profession title or experience in your topic names. ALWAYS generate ${topics} topics and ALWAYS generate ${quesPerTopic} questions per topic. `;
+  num_topics,
+  ques_per_topic,
+  included_topics_arr,
+  excluded_topics_arr,
+  exclusive_topics_arr,
+}: ProposedQuizAttributes) {
+  const roleDefinition = `Your job is to generate ${num_topics} topics based on a subject area and difficulty level. These topics should focus on the technical skills required for the subject area. Do not include characters that would break JSON.parse() like backticks. Do not mention the subject area or difficulty in your topic names. ALWAYS generate ${num_topics} topics and ALWAYS generate ${ques_per_topic} questions per topic. `;
 
   let topicSetDefinition = '';
-  if (exclusiveAreas?.length > 0) {
-    topicSetDefinition = `Only generate topics that pertain to the following: ${exclusiveAreas}. `;
-  } else if (includedAreas?.length > 0 || excludedAreas?.length > 0) {
-    topicSetDefinition = `Innclude these in the topics: ${includedAreas} and exclude these: ${excludedAreas}. `;
+  if (exclusive_topics_arr?.length > 0) {
+    topicSetDefinition = `Only generate topics that pertain to the following: ${excluded_topics_arr.join()}. `;
+  } else if (included_topics_arr?.length > 0 || excluded_topics_arr?.length > 0) {
+    topicSetDefinition = `Include these in the topics: ${included_topics_arr.join()} and exclude these: ${excluded_topics_arr.join()}. `;
   }
 
-  const questionDefinition = `For each of these topics, generate ${quesPerTopic} question(s). `;
-  const questionQualifier =
-    'Do not repeat the profession or experience in question. Generate a simple ID for each question that is unique across all created questions in the response. ';
+  const questionDefinition = `For each of these topics, generate ${ques_per_topic} question(s). `;
+  const questionQualifier = 'Do not repeat the profession or experience in question. ';
 
-  // resembles QuizResponse
-  const schema =
-    "{ quizItems:[{ topic: 'string'; questions: [{ id: string, question: string}] }] }";
+  // NEEDS TO MIMIC EPHEMERAL QUESTION
+  const schema = '[{question: string, question_topic: string}]';
 
   return JSON.stringify({
     role: roleDefinition + topicSetDefinition + questionDefinition + questionQualifier,
@@ -35,7 +33,7 @@ export function getTesterPrompt({
 export function getGraderPrompt() {
   const roleOverview = 'Your job is to analyze the user answers based on the provided questions.';
   const responseOverview =
-    'You will split your analysis into two parts: rating and explanation. These analyses will be applied to each of their respective questions. ';
+    'You will split your analysis into two parts: ai_summary_analysis and ai_detailed_analysis. These analyses will be applied to each of their respective questions, mapped by question_id. ';
   const ratingExplanation =
     'The rating portion of the response should be a brief assessment on the quality of the answer, coming in the form of a numerical rating from 1 to 5, with 5 being the best and 1 the worst. ';
   const greatAnswerDetailed = 'For answers rated 5, no explanation needed.';
@@ -46,8 +44,8 @@ export function getGraderPrompt() {
   const finalResponseQualifiers =
     'Do not repeat the question or user answer in the detailed assessment. Do not include characters that would break JSON.parse() like backticks. Do not comment on quality of the user answer in your detailed explanation. ';
 
-  // resembles QuestionAnalysis
-  const schema = '{ gradedItems: [{ questionId: string, rating: 1-5, explanation: string }]} ';
+  const schema =
+    '[{ question_id: string, ai_summary_analysis: 1-5, ai_detailed_analysis: string }] ';
 
   return JSON.stringify({
     role: roleOverview,

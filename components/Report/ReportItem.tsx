@@ -1,19 +1,19 @@
 import { Accordion, Group, Stack, Text } from '@mantine/core';
-import { Question } from '@/types/quiz';
 import RatingLabel from './RatingLabel';
+import { FinalizedQuestion } from '@/types/question';
 
 interface QuestionLabelProps {
-  topic: string;
+  question_topic: string;
   question: string;
   rating: number;
 }
 
-function QuestionLabel({ topic, question, rating }: QuestionLabelProps) {
+function QuestionLabel({ question_topic, question, rating }: QuestionLabelProps) {
   return (
     <Group wrap="nowrap">
       <div>
         <Text size="md" td="underline" mb="1rem">
-          {topic}
+          {question_topic}
         </Text>
         <Text fs="italic">{question}</Text>
         {rating && <RatingLabel rating={rating} />}
@@ -22,32 +22,32 @@ function QuestionLabel({ topic, question, rating }: QuestionLabelProps) {
   );
 }
 
-function QuestionControl({ question }: { question: Question }) {
+function QuestionControl({ quiz_question }: { quiz_question: FinalizedQuestion }) {
   return (
     <Accordion.Control>
       <QuestionLabel
-        topic={question.attributes.topic}
-        question={question.question}
-        rating={question.analysis?.rating || 0}
+        question_topic={quiz_question.question_topic}
+        question={quiz_question.question}
+        rating={quiz_question.question_answer.ai_summary_analysis || 0}
       />
     </Accordion.Control>
   );
 }
 
-function QuestionPanel({ question }: { question: Question }) {
+function QuestionPanel({ quiz_question }: { quiz_question: FinalizedQuestion }) {
   return (
     <Accordion.Panel>
       <Stack mt="1rem">
         <Text size="sm" td="underline" fw={700}>
           User answer:
         </Text>
-        <Text size="sm">{question.userAnswer}</Text>
-        {question.analysis?.explanation && (
+        <Text size="sm">{quiz_question.question_answer.user_answer}</Text>
+        {quiz_question.question_answer.ai_detailed_analysis && (
           <>
             <Text size="sm" td="underline" fw={700}>
               Analysis:
             </Text>
-            <Text size="sm">{question.analysis?.explanation}</Text>
+            <Text size="sm">{quiz_question.question_answer.ai_detailed_analysis}</Text>
           </>
         )}
       </Stack>
@@ -57,14 +57,14 @@ function QuestionPanel({ question }: { question: Question }) {
 
 interface ReportItemProps {
   idx: number;
-  question: Question;
+  quiz_question: FinalizedQuestion;
 }
 
-export default function ReportItem({ idx, question }: ReportItemProps) {
+export default function ReportItem({ idx, quiz_question }: ReportItemProps) {
   return (
-    <Accordion.Item value={`${idx}ques`} key={question.question}>
-      <QuestionControl question={question} />
-      <QuestionPanel question={question} />
+    <Accordion.Item key={quiz_question.question_id} value={`${idx}ques`}>
+      <QuestionControl quiz_question={quiz_question} />
+      <QuestionPanel quiz_question={quiz_question} />
     </Accordion.Item>
   );
 }
