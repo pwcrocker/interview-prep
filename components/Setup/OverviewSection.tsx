@@ -1,6 +1,6 @@
 import { Select, TextInput } from '@mantine/core';
 import { GetInputPropsReturnType } from '@mantine/form/lib/types';
-import { DIFFICULTY_LEVELS, PROFESSION_BASED_VALUES } from '@/types/difficulty';
+import { PROFESSION_LABELS, QUIZ_DIFFICULTY } from '@/types/enum';
 
 export default function OverviewSection({
   subjectAreaInputProps,
@@ -17,12 +17,14 @@ export default function OverviewSection({
         maxLength={30}
         {...subjectAreaInputProps}
       />
+      {/* onChange will override onChange from props spread */}
       <Select
         label="What experience level?"
-        data={[...Object.values(PROFESSION_BASED_VALUES)]}
-        defaultValue={PROFESSION_BASED_VALUES[DIFFICULTY_LEVELS.INTERMEDIATE]}
+        data={Object.values(PROFESSION_LABELS)}
+        defaultValue={PROFESSION_LABELS[QUIZ_DIFFICULTY.INTERMEDIATE]}
         allowDeselect={false}
         {...difficultyModifierInputProps}
+        // onChange={handleDifficultyChange}
       />
     </>
   );

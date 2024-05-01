@@ -5,12 +5,11 @@ import { useDisclosure } from '@mantine/hooks';
 import { IconUser } from '@tabler/icons-react';
 import { useUser } from '@auth0/nextjs-auth0/client';
 import classes from './UserDrawer.module.css';
-import { useTokens } from '@/store/TokensContextProvider';
+// import { useTokens } from '@/store/TokensContextProvider';
 
 export default function UserDrawer() {
   const [opened, { open, close }] = useDisclosure(false);
   const { isLoading } = useUser();
-  const { tokens } = useTokens();
 
   return (
     <>
@@ -31,11 +30,11 @@ export default function UserDrawer() {
           <Drawer.Body>
             {!isLoading ? (
               <>
-                <Text fw={700} mb="1rem">
-                  Tokens: {tokens}
-                </Text>
                 <UnstyledButton className={classes.control} component="a" href="/api/auth/logout">
                   Log Out
+                </UnstyledButton>
+                <UnstyledButton className={classes.control} component="a" href="/profile/me">
+                  Profile
                 </UnstyledButton>
               </>
             ) : (

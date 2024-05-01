@@ -7,7 +7,6 @@ import { useMediaQuery } from '@mantine/hooks';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@auth0/nextjs-auth0/client';
 import styles from './StepForm.module.css';
-import { fetchQuiz, getQuizCost } from '@/lib/prompt';
 import { ProposedQuizAttributes } from '@/types/quiz';
 import { QuizActionType, QuizContext } from '@/store/QuizContextProvider';
 import LoadingText from '../Layout/LoadingText';
@@ -15,9 +14,9 @@ import SetupPayload from './SetupPayload';
 import OverviewSection from './OverviewSection';
 import QuizAttributeSection from './QuizAttributeSection';
 import { logErr } from '@/lib/logger';
-import { useTokens } from '@/store/TokensContextProvider';
 import PromptSubmitButton from './PromptSubmitButton';
-import { DIFFICULTY_LEVELS, PROFESSION_BASED_VALUES } from '@/types/difficulty';
+import { PROFESSION_LABELS, QUIZ_DIFFICULTY, QUIZ_TYPE } from '@/types/enum';
+import { fetchQuiz } from '@/lib/prompt';
 
 const FOCUS_AREA_GROUPS = ['Include/Exclude', 'Exclusive'];
 
@@ -34,18 +33,16 @@ export default function SetupForm() {
   const { quiz, dispatch } = useContext(QuizContext);
   const router = useRouter();
   const { user, isLoading } = useUser();
-  const { tokens, updateTokens } = useTokens();
 
   const [active, setActive] = useState(0);
-  const [hasEnough, setHasEnough] = useState(false);
   const [focusAreaGroup, setFocusAreaGroup] = useState<string | null>();
   const [isBuilding, setIsBuilding] = useState(false);
-  const [quizCost, setQuizCost] = useState(0);
 
   const form = useForm<ProposedQuizAttributes>({
     initialValues: {
       subject_area: '',
-      difficulty_modifier: PROFESSION_BASED_VALUES[DIFFICULTY_LEVELS.INTERMEDIATE],
+      quiz_type: QUIZ_TYPE.PROFESSION,
+      difficulty: PROFESSION_LABELS[QUIZ_DIFFICULTY.INTERMEDIATE],
       num_topics: 3,
       ques_per_topic: 1,
       included_topics_arr: [],
@@ -67,29 +64,9 @@ export default function SetupForm() {
   });
 
   useEffect(() => {
-    async function setCost() {
-      const cost = await getQuizCost();
-      setQuizCost(cost);
-    }
-
-    setCost();
-  }, []);
-
-  useEffect(() => {
-    async function checkTokens() {
-      setHasEnough(quizCost <= tokens);
-    }
-
-    if (!isLoading) {
-      checkTokens();
-    }
-  }, [tokens]);
-
-  useEffect(() => {
-    // if (myemptyarr) !== if (!!myemptyarr)
-    // eslint-disable-next-line no-extra-boolean-cast
     if (quiz.quiz_questions?.length > 0) {
-      router.push('/prep');
+      // router.push('/prep');
+      router.push(`/prep/question/${quiz.quiz_questions[0].ques_id}`);
     }
   }, [quiz]);
 
@@ -126,6 +103,10 @@ export default function SetupForm() {
     cleanUpTopicArrays(value);
   };
 
+  // const handleDifficultyChange = (quizDiffvalue: QUIZ_DIFFICULTY) => {
+  //   form.setFieldValue('difficulty', `${quizDiffvalue}`);
+  // };
+
   const sendPrompt = async () => {
     nextStep();
     setIsBuilding(true);
@@ -135,36 +116,37 @@ export default function SetupForm() {
       if (!user?.sub) {
         throw new Error('User information not available for quiz creation');
       }
+      // const proposedQuiz = {
+      //   ...form.values,
+      //   difficulty: QUIZ_DIFFICULTY[parseInt(form.values.difficulty)],
+      // } as ProposedQuizAttributes;
       const result = await fetchQuiz(user.sub, form.values);
-      if (!result?.quiz) {
-        // TODO handle refund flow?
+      if (!result || !result.persistedQuiz || !result.persistedQuestions) {
+        // TODO handle retry flow?
         throw new Error("Couldn't create quiz");
       }
-      updateTokens(result.tokens);
       dispatch({
         type: QuizActionType.MAKE_QUIZ,
-        payload: result.quiz,
+        payload: result,
       });
     } catch (err) {
       setIsBuilding(false);
       prevStep();
-      logErr('Bad tings', err);
+      logErr('Failed to create quiz', err);
     }
   };
 
   return (
     <div className={styles.container}>
       <StyledStepper active={active}>
-        <Stepper.Step
-          label="Subject Area"
-          description="General subject for questions i.e. job applying for"
-        >
+        <Stepper.Step label="Subject Area" description="Scope of questions">
           <OverviewSection
             subjectAreaInputProps={form.getInputProps('subject_area')}
-            difficultyModifierInputProps={form.getInputProps('difficulty_modifier')}
+            difficultyModifierInputProps={form.getInputProps('difficulty')}
+            // difficultyChangeHandler={handleDifficultyChange}
           />
         </Stepper.Step>
-        <Stepper.Step label="Quiz Attributes" description="Define characteristics of quiz">
+        <Stepper.Step label="Quiz Attributes" description="Characteristics of quiz">
           <QuizAttributeSection
             topicsProps={form.getInputProps('num_topics')}
             quesProps={form.getInputProps('ques_per_topic')}
@@ -182,7 +164,7 @@ export default function SetupForm() {
             exclusiveProps={form.getInputProps('exclusive_topics_arr')}
           />
         </Stepper.Step>
-        <Stepper.Step label="Confirmation" description="Confirm and Start">
+        <Stepper.Step label="Confirmation" description="Kick off the session">
           <SetupPayload values={form.values} />
         </Stepper.Step>
         <Stepper.Completed>
@@ -204,8 +186,9 @@ export default function SetupForm() {
             <PromptSubmitButton
               clickHandler={sendPrompt}
               loading={isLoading}
-              disabled={!hasEnough}
-              tooltip={`You need at least ${quizCost} tokens`}
+              disabled={false}
+              // disabled={!hasEnough}
+              tooltip="TODO temporary"
             />
           )}
         </Group>

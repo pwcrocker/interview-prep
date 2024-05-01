@@ -2,14 +2,14 @@ import { Button, Group, LoadingOverlay } from '@mantine/core';
 
 interface QuizButtonGroupProps {
   showPrev: boolean;
-  isSubmittable: boolean;
+  // isSubmittable: boolean;
   handlePrev: () => void;
   handleNext: () => void;
 }
 
 export default function QuizButtonGroup({
   showPrev,
-  isSubmittable,
+  // isSubmittable,
   handlePrev,
   handleNext,
 }: QuizButtonGroupProps) {
@@ -20,9 +20,10 @@ export default function QuizButtonGroup({
           Prev
         </Button>
       )}
-      <Button color="burntorange.0" onClick={handleNext} disabled={!isSubmittable}>
+      {/* <Button color="burntorange.0" onClick={handleNext} disabled={!isSubmittable}> */}
+      <Button color="burntorange.0" onClick={handleNext}>
         <LoadingOverlay
-          visible={!isSubmittable}
+          // visible={!isSubmittable}
           zIndex={1000}
           overlayProps={{ radius: 'xs', blur: 2 }}
           loaderProps={{ size: 20 }}

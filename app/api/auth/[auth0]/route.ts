@@ -7,12 +7,13 @@ import { log } from '@/lib/logger';
 // export const GET = handleAuth();
 
 const afterCallback = async (req: NextRequest, session: Session) => {
-  const user = await findUserBySub(session?.user.sub);
-  if (!user) {
+  try {
+    await findUserBySub(session?.user.sub);
+    log('Login flow -- not creating user');
+  } catch (err) {
+    // if can't find user, create
     log('Registration flow -- creating user');
     await insertUser(session.user.sub, session.user.email);
-  } else {
-    log('Login flow -- not creating user');
   }
   return session;
 };

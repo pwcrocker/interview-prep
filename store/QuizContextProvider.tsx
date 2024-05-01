@@ -2,9 +2,10 @@
 
 import { createContext, useReducer } from 'react';
 import quizReducer from '@/reducers/quizReducer';
-import { PersistedQuiz, StateQuiz } from '@/types/quiz';
-import { DEFAULT_VALUES, DIFFICULTY_LEVELS } from '@/types/difficulty';
+import { StateQuiz } from '@/types/state';
 import { EphemeralUserAnswer, PersistedUserAnswer } from '@/types/answer';
+import { QuestionDAO, QuizDAO } from '@/types/dao';
+import { PROFESSION_LABELS, QUIZ_DIFFICULTY, QUIZ_TYPE } from '@/types/enum';
 
 export enum QuizActionType {
   MAKE_QUIZ = 'make-quiz',
@@ -16,7 +17,7 @@ export enum QuizActionType {
 export type QuizAction =
   | {
       type: QuizActionType.MAKE_QUIZ;
-      payload: PersistedQuiz;
+      payload: { persistedQuiz: QuizDAO; persistedQuestions: QuestionDAO[] };
     }
   | {
       type: QuizActionType.ANSWER_SINGLE_QUESTION;
@@ -38,8 +39,9 @@ export interface QuizContextType {
 export const initialReducerState: StateQuiz = {
   quiz_id: '',
   user_sub: '',
+  quiz_type: QUIZ_TYPE.PROFESSION,
   subject_area: '',
-  difficulty_modifier: DEFAULT_VALUES[DIFFICULTY_LEVELS.INTERMEDIATE],
+  difficulty: PROFESSION_LABELS[QUIZ_DIFFICULTY.INTERMEDIATE],
   included_topics: '',
   excluded_topics: '',
   exclusive_topics: '',

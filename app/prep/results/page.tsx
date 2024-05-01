@@ -1,22 +1,10 @@
-'use client';
-
-import { useContext } from 'react';
-import { redirect } from 'next/navigation';
 import { Stack } from '@mantine/core';
-import { QuizContext } from '@/store/QuizContextProvider';
 import ReportHeader from '@/components/Report/ReportHeader';
 import Report from '@/components/Report/Report';
 
 export default function ReportPage() {
-  const { quiz } = useContext(QuizContext);
-
-  if (quiz.questions?.length === 0) {
-    redirect('/setup');
-    return null;
-  }
-
   return (
-    <Stack gap="xl">
+    <Stack gap="xl" px="lg">
       <ReportHeader />
       <Report />
     </Stack>

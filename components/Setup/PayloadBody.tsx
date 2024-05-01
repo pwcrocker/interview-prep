@@ -3,7 +3,7 @@ import { ProposedQuizAttributes } from '@/types/quiz';
 
 export default function PayloadBody({
   subject_area,
-  difficulty_modifier,
+  difficulty,
   num_topics,
   ques_per_topic,
   included_topics_arr,
@@ -22,7 +22,7 @@ export default function PayloadBody({
         <Text span fs="italic">
           Experience
         </Text>
-        <Text span c="burntorange.0" fw={700}>{`: ${difficulty_modifier}`}</Text>
+        <Text span c="burntorange.0" fw={700}>{`: ${difficulty}`}</Text>
       </Box>
       <Box>
         <Text span fs="italic">

@@ -1,53 +1,59 @@
 import { Accordion, Group, Stack, Text } from '@mantine/core';
 import RatingLabel from './RatingLabel';
-import { FinalizedQuestion } from '@/types/question';
+import { StateQuestion } from '@/types/state';
 
 interface QuestionLabelProps {
-  question_topic: string;
-  question: string;
+  label_key: string;
+  ques_topic: string;
+  ques_text: string;
   rating: number;
 }
 
-function QuestionLabel({ question_topic, question, rating }: QuestionLabelProps) {
+function QuestionLabel({ label_key, ques_topic, ques_text, rating }: QuestionLabelProps) {
   return (
-    <Group wrap="nowrap">
+    <Group key={`${label_key}queslabel`} wrap="nowrap">
       <div>
-        <Text size="md" td="underline" mb="1rem">
-          {question_topic}
+        <Text size="md" fs="italic" mb="1rem">
+          {ques_topic}
         </Text>
-        <Text fs="italic">{question}</Text>
+        <Text fs="italic">{ques_text}</Text>
         {rating && <RatingLabel rating={rating} />}
       </div>
     </Group>
   );
 }
 
-function QuestionControl({ quiz_question }: { quiz_question: FinalizedQuestion }) {
+function QuestionControl({ quiz_question }: { quiz_question: StateQuestion }) {
   return (
-    <Accordion.Control>
+    <Accordion.Control key={`${quiz_question.ques_id}acccon`}>
       <QuestionLabel
-        question_topic={quiz_question.question_topic}
-        question={quiz_question.question}
-        rating={quiz_question.question_answer.ai_summary_analysis || 0}
+        label_key={quiz_question.ques_id!}
+        ques_topic={quiz_question?.ques_topic || 'Something went wrong...'}
+        ques_text={quiz_question?.ques_text || 'Something went wrong...'}
+        rating={quiz_question?.question_answer?.summary_analysis || 0}
       />
     </Accordion.Control>
   );
 }
 
-function QuestionPanel({ quiz_question }: { quiz_question: FinalizedQuestion }) {
+function QuestionPanel({ quiz_question }: { quiz_question: StateQuestion }) {
   return (
-    <Accordion.Panel>
+    <Accordion.Panel key={`${quiz_question.ques_id}accpan`}>
       <Stack mt="1rem">
-        <Text size="sm" td="underline" fw={700}>
+        <Text size="sm" fs="italic" fw={700}>
           User answer:
         </Text>
-        <Text size="sm">{quiz_question.question_answer.user_answer}</Text>
-        {quiz_question.question_answer.ai_detailed_analysis && (
+        <Text size="sm">
+          {quiz_question?.question_answer?.user_answer || 'Something went wrong'}
+        </Text>
+        {quiz_question?.question_answer?.detailed_analysis && (
           <>
-            <Text size="sm" td="underline" fw={700}>
+            <Text size="sm" fs="italic" fw={700}>
               Analysis:
             </Text>
-            <Text size="sm">{quiz_question.question_answer.ai_detailed_analysis}</Text>
+            <Text size="sm">
+              {quiz_question?.question_answer?.detailed_analysis || 'Something went wrong'}
+            </Text>
           </>
         )}
       </Stack>
@@ -57,14 +63,14 @@ function QuestionPanel({ quiz_question }: { quiz_question: FinalizedQuestion }) 
 
 interface ReportItemProps {
   idx: number;
-  quiz_question: FinalizedQuestion;
+  quiz_question: StateQuestion;
 }
 
 export default function ReportItem({ idx, quiz_question }: ReportItemProps) {
   return (
-    <Accordion.Item key={quiz_question.question_id} value={`${idx}ques`}>
-      <QuestionControl quiz_question={quiz_question} />
-      <QuestionPanel quiz_question={quiz_question} />
+    <Accordion.Item key={quiz_question.ques_id} value={`${idx}ques`}>
+      <QuestionControl key={`${quiz_question.ques_id}ctrl`} quiz_question={quiz_question} />
+      <QuestionPanel key={`${quiz_question.ques_id}panel`} quiz_question={quiz_question} />
     </Accordion.Item>
   );
 }

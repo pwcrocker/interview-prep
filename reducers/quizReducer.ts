@@ -1,10 +1,11 @@
 import { QuizAction, QuizActionType, initialReducerState } from '@/store/QuizContextProvider';
-import { FinalizedQuiz, PersistedQuiz, StateQuiz } from '@/types/quiz';
+import { StateQuiz } from '@/types/state';
 import { log, logJson } from '@/lib/logger';
 import { EphemeralUserAnswer, PersistedUserAnswer } from '@/types/answer';
+import { UserAnswerDAO } from '@/types/dao';
 
 function answerSingleQuestion(
-  quiz: PersistedQuiz,
+  quiz: StateQuiz,
   { questionIdx, answer }: { questionIdx: number; answer: EphemeralUserAnswer }
 ) {
   const newState = {
@@ -27,36 +28,43 @@ function answerSingleQuestion(
   return newState;
 }
 
-function stitchAnswersIntoQuiz(quiz: FinalizedQuiz, answers: PersistedUserAnswer[]): FinalizedQuiz {
+function stitchAnswersIntoQuiz(quiz: StateQuiz, answers: UserAnswerDAO[]) {
   const quesIdToAns = new Map<string, PersistedUserAnswer>();
-  answers.forEach((answer) => quesIdToAns.set(answer.question_id, answer));
-  const newState: FinalizedQuiz = {
+  answers.forEach((answer) => quesIdToAns.set(answer.ques_id, answer));
+  const newState = {
     ...quiz,
     quiz_questions: quiz.quiz_questions.map((curQues) => ({
       ...curQues,
       question_answer: {
         ...curQues.question_answer,
-        ...quesIdToAns.get(curQues.question_id),
+        // TODO forcing ques_id here...
+        ...quesIdToAns.get(curQues.ques_id!),
       },
     })),
+    is_graded: true,
   };
-  log('Stitched answers into final quiz');
+  log('Stitched answers into final quiz and marked as graded');
   return newState;
 }
 
 export default function quizReducer(quiz: StateQuiz, action: QuizAction): StateQuiz {
   switch (action.type) {
     case QuizActionType.MAKE_QUIZ:
-      return { ...action.payload };
+      return {
+        ...quiz,
+        ...action.payload.persistedQuiz,
+        // quiz_questions should be empty here...
+        quiz_questions: [...action.payload.persistedQuestions],
+      };
     case QuizActionType.ANSWER_SINGLE_QUESTION:
       return {
         ...quiz,
-        ...answerSingleQuestion(quiz as PersistedQuiz, action.payload),
+        ...answerSingleQuestion(quiz as StateQuiz, action.payload),
       };
     case QuizActionType.GRADE_QUIZ:
       return {
         ...quiz,
-        ...stitchAnswersIntoQuiz(quiz as FinalizedQuiz, action.payload),
+        ...stitchAnswersIntoQuiz(quiz, action.payload),
       };
     case QuizActionType.RESET_QUIZ:
       return initialReducerState;

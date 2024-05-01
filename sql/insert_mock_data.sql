@@ -7,29 +7,31 @@ BEGIN;
 INSERT INTO _users(user_sub, email)
 VALUES ('auth0|mockuser1', 'mockuser1@mail.com');
 
-INSERT INTO quizzes(user_sub, subject_area)
+INSERT INTO quizzes(user_sub, subject_area, quiz_type, difficulty)
 VALUES (
   'auth0|mockuser1',
-  'Mock subject area 1'
+  'Mock subject area 1',
+  'Profession',
+  '3-5 years'
 );
 
-INSERT INTO questions(question, question_topic)
+INSERT INTO questions(ques_text, ques_topic)
 VALUES ('Mock question 1', 'Mock question topic 1');
 
-INSERT INTO quiz_questions(quiz_id, question_id)
+INSERT INTO quiz_questions(quiz_id, ques_id)
 VALUES (
   (SELECT quiz_id FROM quizzes WHERE subject_area = 'Mock subject area 1'),
-  (SELECT question_id FROM questions WHERE question = 'Mock question 1')
+  (SELECT ques_id FROM questions WHERE ques_text = 'Mock question 1')
 );
 
-INSERT INTO questions(question, question_topic)
+INSERT INTO questions(ques_text, ques_topic)
 VALUES ('Mock question 2', 'Mock question topic 2')
-RETURNING question_id;
+RETURNING ques_id;
 
-INSERT INTO quiz_questions(quiz_id, question_id)
+INSERT INTO quiz_questions(quiz_id, ques_id)
 VALUES (
   (SELECT quiz_id FROM quizzes WHERE subject_area = 'Mock subject area 1'),
-  (SELECT question_id FROM questions WHERE question = 'Mock question 2')
+  (SELECT ques_id FROM questions WHERE ques_text = 'Mock question 2')
 );
 
 COMMIT;
@@ -38,29 +40,31 @@ BEGIN;
 
 -- load second quiz w a couple of ques
 
-INSERT INTO quizzes(user_sub, subject_area)
+INSERT INTO quizzes(user_sub, subject_area, quiz_type, difficulty)
 VALUES (
   'auth0|mockuser1',
-  'Mock subject area 2'
+  'Mock subject area 2',
+  'Profession',
+  '3-5 years'
 );
 
-INSERT INTO questions(question, question_topic)
+INSERT INTO questions(ques_text, ques_topic)
 VALUES ('Mock question 3', 'Mock question topic 3');
 
-INSERT INTO quiz_questions(quiz_id, question_id)
+INSERT INTO quiz_questions(quiz_id, ques_id)
 VALUES (
   (SELECT quiz_id FROM quizzes WHERE subject_area = 'Mock subject area 2'),
-  (SELECT question_id FROM questions WHERE question = 'Mock question 3')
+  (SELECT ques_id FROM questions WHERE ques_text = 'Mock question 3')
 );
 
-INSERT INTO questions(question, question_topic)
+INSERT INTO questions(ques_text, ques_topic)
 VALUES ('Mock question 4', 'Mock question topic 4')
-RETURNING question_id;
+RETURNING ques_id;
 
-INSERT INTO quiz_questions(quiz_id, question_id)
+INSERT INTO quiz_questions(quiz_id, ques_id)
 VALUES (
   (SELECT quiz_id FROM quizzes WHERE subject_area = 'Mock subject area 2'),
-  (SELECT question_id FROM questions WHERE question = 'Mock question 4')
+  (SELECT ques_id FROM questions WHERE ques_text = 'Mock question 4')
 );
 
 COMMIT;

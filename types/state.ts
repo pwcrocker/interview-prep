@@ -1,3 +1,8 @@
-import { EphemeralQuiz, FinalizedQuiz, PersistedQuiz } from './quiz';
+import { QuestionDAO, QuizDAO, UserAnswerDAO } from './dao';
 
-export type QuizState = EphemeralQuiz | PersistedQuiz | FinalizedQuiz;
+export type StateQuestion = Partial<QuestionDAO> & {
+  question_answer?: Partial<UserAnswerDAO>;
+};
+
+export type StateQuiz = QuizDAO &
+  Partial<Pick<QuizDAO, 'quiz_id' | 'is_graded'>> & { quiz_questions: StateQuestion[] };

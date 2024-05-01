@@ -6,7 +6,8 @@ export default function Logo() {
   return (
     <Link href="/" style={{ color: 'inherit', textDecoration: 'none' }}>
       <Group>
-        <Image src="/neontietrimmed.png" alt="prepforwork icon" width={30} height={50} />
+        {/* <Image src="/neontietrimmed.png" alt="prepforwork icon" width={30} height={50} /> */}
+        <Image src="/neontietrimmedoutlined.png" alt="prepforwork icon" width={35} height={50} />
         <Text fw={700} variant="gradient" gradient={{ from: 'burntorange.0', to: 'yellow' }}>
           prepforwork.ai
         </Text>

@@ -1,0 +1,17 @@
+.card-key {
+  font-style: italic;
+}
+
+.card-value {
+  font-weight: 700;
+}
+
+.review-btn {
+  color: rgba(230, 240, 240, 0.9);
+  background-color: rgba(0, 110, 140, 0.6);
+}
+
+.review-btn:hover {
+  color: rgb(0, 255, 255, 1);
+  background-color: rgba(0, 130, 150, 0.6);
+}
